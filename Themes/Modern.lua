@@ -423,8 +423,10 @@ function ModernModule.CreateWindow(Core, config, subThemeName)
 			MaxImg.ImageTransparency = 0.5
 			Non_Container.Visible = false
 			Core.RegisterMinimized(windowRecord)
+			Core.UpdateMinimizedGrid()
 		else
 			Core.UnregisterMinimized(windowRecord)
+			Core.UpdateMinimizedGrid()
 			Non_Container.Visible = true
 			Line.Visible = true
 			Fix.Visible = true
@@ -605,6 +607,7 @@ function ModernModule.CreateWindow(Core, config, subThemeName)
 	local function destroyWindow()
 		Core.UnregisterMinimized(windowRecord)
 		Core.UnregisterActiveWindow(windowRecord)
+		Core.UpdateMinimizedGrid()
 		MainFrame:Destroy()
 	end
 
@@ -682,6 +685,7 @@ function ModernModule.CreateWindow(Core, config, subThemeName)
 	windowRecord.GetTitle = function() return TitleLabel.Text end
 	windowRecord.GetIcon = function() return IconLabel.Image end
 	windowRecord.Focus = function() bringToFront() end
+	windowRecord.Close = function() destroyWindow() end
 	windowRecord.Minimize = function() setMinimizeState(true) end
 	windowRecord.Restore = function() setMinimizeState(false) end
 	windowRecord.IsMinimized = function() return WindowState.IsMinimized end
