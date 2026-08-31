@@ -1,4 +1,4 @@
--- Main.lua (Core Hub)
+-- Main.lua (Core Hub - khngsml0-cmd/WindowLib_Theme)
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 local GuiService = game:GetService("GuiService")
@@ -8,8 +8,8 @@ local TextService = game:GetService("TextService")
 
 local LocalPlayer = Players.LocalPlayer
 
--- CẤU HÌNH GITHUB CỦA BẠN (Thay User và Repo của bạn vào đây)
-local GITHUB_RAW_BASE = "https://raw.githubusercontent.com/<YOUR_USER>/<YOUR_REPO>/main/Themes/"
+-- ĐƯỜNG DẪN GITHUB CỦA BẠN ĐÃ ĐƯỢC CẤU HÌNH CHUẨN XÁC
+local GITHUB_RAW_BASE = "https://raw.githubusercontent.com/khngsml0-cmd/WindowLib_Theme/main/Themes/"
 
 local THEME_MAP = {
 	Dark    = { Module = "Modern",  SubTheme = "Dark" },
@@ -18,7 +18,7 @@ local THEME_MAP = {
 }
 
 --------------------------------------------------------------------------------
--- 1. ROOT AN TOÀN & CÁC LỚP SCREEN GUI
+-- 1. ROOT AN TOÀN & PHÂN CẤP NONUSER GUI
 --------------------------------------------------------------------------------
 local function getTargetGuiParent()
 	if not RunService:IsStudio() then
@@ -81,7 +81,7 @@ NotiPadding.PaddingTop = UDim.new(0, 10); NotiPadding.PaddingRight = UDim.new(0,
 NotiPadding.PaddingLeft = UDim.new(0, 10); NotiPadding.PaddingBottom = UDim.new(0, 10)
 
 --------------------------------------------------------------------------------
--- 2. HIỆU ỨNG AERO SNAP & DRAG OUTLINE TOÀN CỤC
+-- 2. CORE CONTEXT TRUYỀN CHO CÁC THEME
 --------------------------------------------------------------------------------
 local isGlobalOutlineDrag = false
 
@@ -107,26 +107,6 @@ SnapGhostFrame.Visible = false
 SnapGhostFrame.ZIndex = 99999
 Instance.new("UICorner", SnapGhostFrame).CornerRadius = UDim.new(0, 6)
 
-local function createDottedEdge(parent, size, pos, isVertical)
-	local edge = Instance.new("ImageLabel", parent)
-	edge.BackgroundTransparency = 1
-	edge.Size = size; edge.Position = pos
-	edge.Image = "rbxassetid://6071575925"
-	edge.ImageColor3 = Color3.fromRGB(0, 170, 255)
-	edge.ImageTransparency = 1
-	edge.ScaleType = Enum.ScaleType.Tile
-	edge.TileSize = isVertical and UDim2.new(0, 2, 0, 8) or UDim2.new(0, 8, 0, 2)
-	return edge
-end
-
-local snapTop = createDottedEdge(SnapGhostFrame, UDim2.new(1, 0, 0, 2), UDim2.new(0, 0, 0, 0), false)
-local snapBottom = createDottedEdge(SnapGhostFrame, UDim2.new(1, 0, 0, 2), UDim2.new(0, 0, 1, -2), false)
-local snapLeft = createDottedEdge(SnapGhostFrame, UDim2.new(0, 2, 1, 0), UDim2.new(0, 0, 0, 0), true)
-local snapRight = createDottedEdge(SnapGhostFrame, UDim2.new(0, 2, 1, 0), UDim2.new(1, -2, 0, 0), true)
-
---------------------------------------------------------------------------------
--- 3. CORE CONTEXT TRUYỀN CHO CÁC THEME
---------------------------------------------------------------------------------
 local Core = {
 	NonUserGui = NonUserGui,
 	SystemGui = SystemGui,
@@ -210,16 +190,10 @@ end
 function Core.ShowSnapGhost(pos, size)
 	SnapGhostFrame.Visible = true
 	TweenService:Create(SnapGhostFrame, TweenInfo.new(0.15), {Position = pos, Size = size, BackgroundTransparency = 0.88}):Play()
-	for _, edge in ipairs({snapTop, snapBottom, snapLeft, snapRight}) do
-		TweenService:Create(edge, TweenInfo.new(0.15), {ImageTransparency = 0.1}):Play()
-	end
 end
 
 function Core.HideSnapGhost()
 	local t = TweenService:Create(SnapGhostFrame, TweenInfo.new(0.15), {BackgroundTransparency = 1})
-	for _, edge in ipairs({snapTop, snapBottom, snapLeft, snapRight}) do
-		TweenService:Create(edge, TweenInfo.new(0.15), {ImageTransparency = 1}):Play()
-	end
 	t:Play()
 	t.Completed:Connect(function()
 		if SnapGhostFrame.BackgroundTransparency >= 0.99 then SnapGhostFrame.Visible = false end
@@ -229,124 +203,118 @@ end
 function Core.IsGlobalOutlineDrag() return isGlobalOutlineDrag end
 
 --------------------------------------------------------------------------------
--- 4. CONTEXT MENU ENGINE
+-- 3. THEME DỰ PHÒNG (FALLBACK CHỐNG CRASH KHI MẤT MẠNG HOẶC SAI LINK)
 --------------------------------------------------------------------------------
-local activeSubmenuFrames = {}
-
-local function clearSubmenus(level)
-	for i = #activeSubmenuFrames, level or 1, -1 do
-		if activeSubmenuFrames[i] then
-			activeSubmenuFrames[i]:Destroy()
-			table.remove(activeSubmenuFrames, i)
-		end
-	end
-end
-
-local function renderContextMenu(pos, items, level, parentWidth, palette)
-	level = level or 1
-	clearSubmenus(level)
-	palette = palette or {
-		ContextMenuBackground = Color3.fromRGB(35, 35, 35),
-		ContextMenuStroke = Color3.fromRGB(60, 60, 60),
-		ContextItemDefault = Color3.fromRGB(35, 35, 35),
-		ContextItemHover = Color3.fromRGB(40, 90, 150),
-		ContextItemText = Color3.fromRGB(240, 240, 240),
-		ContextItemTextDisabled = Color3.fromRGB(140, 140, 140),
-		ContextItemSeparator = Color3.fromRGB(70, 70, 70),
+local FallbackModernTheme = {
+	Type = "Modern",
+	Palettes = {
+		Dark = {
+			MainBackground = Color3.fromRGB(30, 30, 30),
+			MainStroke = Color3.fromRGB(50, 50, 50),
+			TopBarBackground = Color3.fromRGB(20, 20, 20),
+			TitleTextColor = Color3.fromRGB(240, 240, 240),
+			CloseBtnColor = Color3.fromRGB(30, 30, 30),
+		},
+		Light = {
+			MainBackground = Color3.fromRGB(255, 255, 255),
+			MainStroke = Color3.fromRGB(220, 220, 220),
+			TopBarBackground = Color3.fromRGB(240, 240, 240),
+			TitleTextColor = Color3.fromRGB(30, 30, 30),
+			CloseBtnColor = Color3.fromRGB(240, 240, 240),
+		}
 	}
+}
 
-	local itemHeight = 24; local sepHeight = 10; local itemSpacing = 2
-	local maxW = 180
+function FallbackModernTheme.CreateWindow(coreCtx, config, subThemeName)
+	local p = FallbackModernTheme.Palettes[subThemeName or "Dark"] or FallbackModernTheme.Palettes.Dark
+	local title = config.Title or "Window"
+	local size = config.Size or UDim2.new(0, 500, 0, 320)
+	local pos = config.Position or coreCtx.GetNextCascadePosition(size, config.Parent or coreCtx.NonUserGui)
 
-	for _, it in ipairs(items or {}) do
-		if it.Type ~= "Separator" then
-			local sz = TextService:GetTextSize(it.Text or "", 13, Enum.Font.Gotham, Vector2.new(2000, 50))
-			local w = math.ceil(sz.X * 1.1) + 40
-			if w > maxW then maxW = w end
+	local frame = Instance.new("ImageButton", config.Parent or coreCtx.NonUserGui)
+	frame.Name = "Window_" .. title
+	frame.Size = size; frame.Position = pos
+	frame.BackgroundColor3 = p.MainBackground
+	frame.BorderSizePixel = 0; frame.AutoButtonColor = false
+	frame.ZIndex = coreCtx.GetNextZIndex()
+	Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 8)
+	local strk = Instance.new("UIStroke", frame); strk.Color = p.MainStroke
+
+	local topBar = Instance.new("Frame", frame)
+	topBar.Size = UDim2.new(1, 0, 0, 28)
+	topBar.BackgroundColor3 = p.TopBarBackground
+	topBar.BorderSizePixel = 0; topBar.ZIndex = frame.ZIndex + 1
+	Instance.new("UICorner", topBar).CornerRadius = UDim.new(0, 8)
+
+	local titleLbl = Instance.new("TextLabel", topBar)
+	titleLbl.Size = UDim2.new(1, -60, 1, 0); titleLbl.Position = UDim2.new(0, 10, 0, 0)
+	titleLbl.BackgroundTransparency = 1; titleLbl.Font = Enum.Font.GothamMedium
+	titleLbl.TextSize = 13; titleLbl.TextColor3 = p.TitleTextColor
+	titleLbl.TextXAlignment = Enum.TextXAlignment.Left; titleLbl.Text = title
+	titleLbl.ZIndex = topBar.ZIndex + 1
+
+	local closeBtn = Instance.new("TextButton", topBar)
+	closeBtn.Size = UDim2.new(0, 22, 0, 22); closeBtn.Position = UDim2.new(1, -26, 0, 3)
+	closeBtn.BackgroundColor3 = p.CloseBtnColor; closeBtn.Text = "✕"
+	closeBtn.TextColor3 = p.TitleTextColor; closeBtn.BorderSizePixel = 0
+	closeBtn.ZIndex = topBar.ZIndex + 1
+	Instance.new("UICorner", closeBtn).CornerRadius = UDim.new(0, 4)
+
+	local container = Instance.new("Frame", frame)
+	container.Name = "Container"
+	container.Size = UDim2.new(1, 0, 1, -28); container.Position = UDim2.new(0, 0, 0, 28)
+	container.BackgroundTransparency = 1; container.ZIndex = frame.ZIndex + 1
+
+	local isDragging, dragStart, startPos = false, nil, nil
+	topBar.InputBegan:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+			coreCtx.BringToFront(frame)
+			isDragging = true; dragStart = input.Position; startPos = frame.Position
+			input.Changed:Connect(function()
+				if input.UserInputState == Enum.UserInputState.End then isDragging = false end
+			end)
 		end
-	end
-
-	local totalH = 8
-	for _, it in ipairs(items or {}) do
-		totalH = totalH + (it.Type == "Separator" and sepHeight or itemHeight) + itemSpacing
-	end
-
-	local menu = Instance.new("ImageButton", ContextMenuGui)
-	menu.BorderSizePixel = 0
-	menu.BackgroundColor3 = palette.ContextMenuBackground
-	menu.Size = UDim2.new(0, maxW, 0, totalH)
-	menu.Position = UDim2.new(0, pos.X, 0, pos.Y)
-	menu.ZIndex = 999900 + level
-	Instance.new("UICorner", menu).CornerRadius = UDim.new(0, 6)
-	local strk = Instance.new("UIStroke", menu)
-	strk.Color = palette.ContextMenuStroke
-
-	local pad = Instance.new("UIPadding", menu)
-	pad.PaddingTop = UDim.new(0, 4); pad.PaddingBottom = UDim.new(0, 4); pad.PaddingLeft = UDim.new(0, 4); pad.PaddingRight = UDim.new(0, 4)
-
-	local list = Instance.new("UIListLayout", menu)
-	list.Padding = UDim.new(0, itemSpacing)
-
-	for _, it in ipairs(items or {}) do
-		if it.Type == "Separator" then
-			local sep = Instance.new("Frame", menu)
-			sep.BackgroundTransparency = 1; sep.Size = UDim2.new(1, 0, 0, sepHeight)
-			local line = Instance.new("Frame", sep)
-			line.BorderSizePixel = 0; line.BackgroundColor3 = palette.ContextItemSeparator
-			line.Size = UDim2.new(1, -6, 0, 1); line.Position = UDim2.new(0.5, 0, 0.5, 0); line.AnchorPoint = Vector2.new(0.5, 0.5)
-		else
-			local btn = Instance.new("TextButton", menu)
-			btn.BorderSizePixel = 0; btn.BackgroundColor3 = palette.ContextItemDefault
-			btn.Size = UDim2.new(1, 0, 0, itemHeight); btn.Text = ""
-			Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 4)
-
-			local txt = Instance.new("TextLabel", btn)
-			txt.BackgroundTransparency = 1; txt.Size = UDim2.new(1, -16, 1, 0); txt.Position = UDim2.new(0, 8, 0, 0)
-			txt.Font = Enum.Font.Gotham; txt.TextSize = 13; txt.TextXAlignment = Enum.TextXAlignment.Left
-			txt.Text = it.Text or ""; txt.TextColor3 = it.Disabled and palette.ContextItemTextDisabled or palette.ContextItemText
-
-			if not it.Disabled then
-				btn.MouseEnter:Connect(function() btn.BackgroundColor3 = palette.ContextItemHover; txt.TextColor3 = Color3.fromRGB(255, 255, 255) end)
-				btn.MouseLeave:Connect(function() btn.BackgroundColor3 = palette.ContextItemDefault; txt.TextColor3 = palette.ContextItemText end)
-				btn.MouseButton1Click:Connect(function()
-					clearSubmenus(1)
-					if it.Callback then it.Callback() end
-				end)
-			end
+	end)
+	UserInputService.InputChanged:Connect(function(input)
+		if isDragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+			local delta = input.Position - dragStart
+			frame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
 		end
-	end
+	end)
 
-	table.insert(activeSubmenuFrames, menu)
-	return menu
+	local winRecord = {}
+	local winAPI = {
+		Frame = frame,
+		GetFrame = function() return frame end,
+		GetContainer = function() return container end,
+		SetTitle = function(t) titleLbl.Text = tostring(t) end,
+		Close = function() coreCtx.UnregisterActiveWindow(winRecord); frame:Destroy() end,
+		Focus = function() coreCtx.BringToFront(frame, winRecord) end,
+		SetFocusVisual = function(f) titleLbl.TextColor3 = f and p.TitleTextColor or Color3.fromRGB(140, 140, 140) end,
+		UpdatePalette = function(sub)
+			local newP = FallbackModernTheme.Palettes[sub or "Dark"] or p
+			frame.BackgroundColor3 = newP.MainBackground
+			strk.Color = newP.MainStroke
+			topBar.BackgroundColor3 = newP.TopBarBackground
+			titleLbl.TextColor3 = newP.TitleTextColor
+			closeBtn.BackgroundColor3 = newP.CloseBtnColor
+			closeBtn.TextColor3 = newP.TitleTextColor
+		end
+	}
+	for k, v in pairs(winAPI) do winRecord[k] = v end
+	closeBtn.MouseButton1Click:Connect(function() winAPI.Close() end)
+	return winAPI
 end
 
-UserInputService.InputBegan:Connect(function(input)
-	if input.UserInputType == Enum.UserInputType.MouseButton1 then
-		if #activeSubmenuFrames > 0 then
-			local mousePos = UserInputService:GetMouseLocation() - GuiService:GetGuiInset()
-			local clickedInside = false
-			for _, f in ipairs(activeSubmenuFrames) do
-				if f and f.Parent then
-					local p = f.AbsolutePosition; local s = f.AbsoluteSize
-					if mousePos.X >= p.X and mousePos.X <= p.X + s.X and mousePos.Y >= p.Y and mousePos.Y <= p.Y + s.Y then
-						clickedInside = true; break
-					end
-				end
-			end
-			if not clickedInside then clearSubmenus(1) end
-		end
-	end
-end)
-
 --------------------------------------------------------------------------------
--- 5. MAIN LIBRARY & GITHUB THEME ENGINE (AUTO LOAD MODERN)
+-- 4. MAIN LIBRARY & GITHUB THEME ENGINE
 --------------------------------------------------------------------------------
 local Library = {
 	CurrentThemeName = "Dark",
-	CurrentModuleType = nil,
+	CurrentModuleType = "Modern",
 	LoadedModules = {},
 	RegisteredWindows = {},
-	ActiveThemeModule = nil,
+	ActiveThemeModule = FallbackModernTheme,
 	OnThemeChanged = Instance.new("BindableEvent")
 }
 
@@ -356,31 +324,33 @@ function Library:FetchModule(moduleName)
 	local url = GITHUB_RAW_BASE .. moduleName .. ".lua?t=" .. tick()
 	local success, response = pcall(function() return game:HttpGet(url) end)
 
-	if not success or not response then
-		warn("[UI Core] Không thể tải Theme:", moduleName, "từ GitHub! Đường dẫn:", url)
-		return nil
+	if not success or not response or response:find("404: Not Found") or response:find("<html") then
+		warn("[UI Core] Không tìm thấy file " .. moduleName .. ".lua trên GitHub! Đang dùng Fallback.")
+		return FallbackModernTheme
 	end
 
-	local loadSuccess, moduleTable = pcall(function() return loadstring(response)() end)
-	if loadSuccess and type(moduleTable) == "table" then
+	local loadFunc, syntaxErr = loadstring(response)
+	if not loadFunc then
+		warn("[UI Core] Lỗi cú pháp trong file (" .. moduleName .. ".lua):", syntaxErr)
+		return FallbackModernTheme
+	end
+
+	local execSuccess, moduleTable = pcall(loadFunc)
+	if execSuccess and type(moduleTable) == "table" and moduleTable.CreateWindow then
 		self.LoadedModules[moduleName] = moduleTable
 		return moduleTable
 	else
-		warn("[UI Core] Lỗi cú pháp khi nạp Module Theme:", moduleName)
-		return nil
+		warn("[UI Core] Module " .. moduleName .. " không trả về hàm CreateWindow!")
+		return FallbackModernTheme
 	end
 end
 
--- Tự động đảm bảo đã nạp Theme mặc định
 function Library:EnsureDefaultThemeLoaded()
-	if self.ActiveThemeModule then return end
 	local targetInfo = THEME_MAP[self.CurrentThemeName] or THEME_MAP.Dark
-	local moduleObj = self:FetchModule(targetInfo.Module)
-	if moduleObj then
-		self.ActiveThemeModule = moduleObj
-		self.CurrentModuleType = moduleObj.Type
-		if moduleObj.Init then moduleObj.Init(Core) end
-	end
+	local moduleObj = self:FetchModule(targetInfo.Module) or FallbackModernTheme
+	self.ActiveThemeModule = moduleObj
+	self.CurrentModuleType = moduleObj.Type
+	if moduleObj.Init then moduleObj.Init(Core) end
 end
 
 function Library:SetTheme(targetThemeName)
@@ -389,8 +359,7 @@ function Library:SetTheme(targetThemeName)
 
 	local targetModuleName = targetInfo.Module
 	local subTheme = targetInfo.SubTheme
-	local moduleObj = self:FetchModule(targetModuleName)
-	if not moduleObj then return end
+	local moduleObj = self:FetchModule(targetModuleName) or FallbackModernTheme
 
 	local isSameArchetype = (self.CurrentModuleType == moduleObj.Type)
 
@@ -407,12 +376,10 @@ function Library:SetTheme(targetThemeName)
 	end
 
 	if isSameArchetype then
-		-- Cùng Engine (VD: Dark <-> Light): Hot-swap Palette cực mượt
 		for _, win in ipairs(Core.ActiveWindows) do
 			if win.UpdatePalette then win.UpdatePalette(subTheme) end
 		end
 	else
-		-- Khác Engine (VD: Modern <-> Classic): Rebuild sạch sẽ
 		for _, win in ipairs(Core.ActiveWindows) do
 			if win.Frame and win.Frame.Parent then win.Frame:Destroy() end
 		end
@@ -438,7 +405,7 @@ function Library:CreateWindow(config, builderCallback)
 	self:EnsureDefaultThemeLoaded()
 
 	local targetInfo = THEME_MAP[self.CurrentThemeName] or THEME_MAP.Dark
-	local moduleObj = self.ActiveThemeModule
+	local moduleObj = self.ActiveThemeModule or FallbackModernTheme
 
 	local registryItem = { Config = config, Builder = builderCallback }
 	table.insert(self.RegisteredWindows, registryItem)
@@ -457,7 +424,7 @@ end
 
 function Library:Notify(config)
 	config = config or {}
-	local title = config.Title or "Thông báo"
+	local title = config.Title or "Notification"
 	local sub = config.Subtitle or ""
 	local duration = config.Duration or 4
 
@@ -491,9 +458,7 @@ end
 function Library:GetNonUser() return NonUserGui end
 function Library:GetCustomOpenUI() return CustomOpenGui end
 
--- TỰ ĐỘNG KHỞI CHẠY THEME MẶC ĐỊNH NGAY KHI EXECUTE
-task.spawn(function()
-	Library:EnsureDefaultThemeLoaded()
-end)
+-- Tự động kích hoạt nạp Theme ngay lập tức
+Library:EnsureDefaultThemeLoaded()
 
 return Library
