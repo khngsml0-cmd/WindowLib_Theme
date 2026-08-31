@@ -1,917 +1,609 @@
--- Main.lua (Core Hub - khngsml0-cmd/WindowLib_Theme)
+-- File: Main.lua (Core Hub - Modular Theme Architecture)
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
-local GuiService = game:GetService("GuiService")
-local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
-local TextService = game:GetService("TextService")
-
+local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 
--- ĐƯỜNG DẪN GITHUB CỦA BẠN
-local GITHUB_RAW_BASE = "https://raw.githubusercontent.com/khngsml0-cmd/WindowLib_Theme/main/Themes/"
-
-local THEME_MAP = {
-	Dark    = { Module = "Modern",  SubTheme = "Dark" },
-	Light   = { Module = "Modern",  SubTheme = "Light" },
-	Classic = { Module = "Classic", SubTheme = "Classic" },
-}
-
---------------------------------------------------------------------------------
--- 1. ROOT GUI & PHÂN CẤP NONUSER
---------------------------------------------------------------------------------
-local function getTargetGuiParent()
-	if not RunService:IsStudio() then
-		if gethui then
-			local success, hui = pcall(gethui)
-			if success and hui then return hui end
-		end
-		local success, coreGui = pcall(function() return game:GetService("CoreGui") end)
-		if success and coreGui then return coreGui end
-	end
-	return LocalPlayer:WaitForChild("PlayerGui")
-end
-
-local RootParent = getTargetGuiParent()
-local BASE_DISPLAY_ORDER = 100000
-
-local SystemGui = Instance.new("ScreenGui")
-SystemGui.Name = "SYSTEM"
-SystemGui.IgnoreGuiInset = true
-SystemGui.ResetOnSpawn = false
-SystemGui.DisplayOrder = BASE_DISPLAY_ORDER
-SystemGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-SystemGui.Parent = RootParent
-
-local NonUserGui = Instance.new("ScreenGui")
-NonUserGui.Name = "NonUser"
-NonUserGui.IgnoreGuiInset = true
-NonUserGui.DisplayOrder = BASE_DISPLAY_ORDER + 500
-NonUserGui.ResetOnSpawn = false
-NonUserGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-NonUserGui.Parent = SystemGui
-
-local CustomOpenGui = Instance.new("ScreenGui")
-CustomOpenGui.Name = "CustomOpenUI"
-CustomOpenGui.IgnoreGuiInset = true
-CustomOpenGui.DisplayOrder = BASE_DISPLAY_ORDER + 600
-CustomOpenGui.ResetOnSpawn = false
-CustomOpenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-CustomOpenGui.Parent = SystemGui
-
-local ContextMenuGui = Instance.new("ScreenGui")
-ContextMenuGui.Name = "SYSTEM_DefaultContextMenu"
-ContextMenuGui.IgnoreGuiInset = true
-ContextMenuGui.DisplayOrder = BASE_DISPLAY_ORDER + 999900
-ContextMenuGui.ResetOnSpawn = false
-ContextMenuGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-ContextMenuGui.Parent = SystemGui
-
-local NotificationGui = Instance.new("ScreenGui")
-NotificationGui.Name = "SYSTEM_Notification"
-NotificationGui.IgnoreGuiInset = true
-NotificationGui.DisplayOrder = BASE_DISPLAY_ORDER + 999999
-NotificationGui.ResetOnSpawn = false
-NotificationGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-NotificationGui.Parent = SystemGui
-
-local NotiListLayout = Instance.new("UIListLayout", NotificationGui)
-NotiListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Right
-NotiListLayout.VerticalAlignment = Enum.VerticalAlignment.Bottom
-NotiListLayout.SortOrder = Enum.SortOrder.LayoutOrder
-NotiListLayout.Padding = UDim.new(0, 6)
-
-local NotiPadding = Instance.new("UIPadding", NotificationGui)
-NotiPadding.PaddingTop = UDim.new(0, 10); NotiPadding.PaddingRight = UDim.new(0, 10)
-NotiPadding.PaddingLeft = UDim.new(0, 10); NotiPadding.PaddingBottom = UDim.new(0, 10)
-
---------------------------------------------------------------------------------
--- 2. DRAG OUTLINE & AERO SNAP GHOST
---------------------------------------------------------------------------------
-local isGlobalOutlineDrag = false
-
-local DragOutlineFrame = Instance.new("Frame", SystemGui)
-DragOutlineFrame.Name = "SYSTEM_DragOutlineFrame"
-DragOutlineFrame.BorderSizePixel = 0
-DragOutlineFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-DragOutlineFrame.BackgroundTransparency = 0.85
-DragOutlineFrame.Visible = false
-DragOutlineFrame.ZIndex = 99998
-Instance.new("UICorner", DragOutlineFrame).CornerRadius = UDim.new(0, 6)
-
-local DragOutlineStroke = Instance.new("UIStroke", DragOutlineFrame)
-DragOutlineStroke.Color = Color3.fromRGB(50, 50, 50)
-DragOutlineStroke.Thickness = 2
-DragOutlineStroke.LineJoinMode = Enum.LineJoinMode.Miter
-
-local SnapGhostFrame = Instance.new("Frame", SystemGui)
-SnapGhostFrame.Name = "SnapGhostFrame"
-SnapGhostFrame.BorderSizePixel = 0
-SnapGhostFrame.BackgroundColor3 = Color3.fromRGB(0, 120, 215)
-SnapGhostFrame.BackgroundTransparency = 1
-SnapGhostFrame.Visible = false
-SnapGhostFrame.ZIndex = 99999
-Instance.new("UICorner", SnapGhostFrame).CornerRadius = UDim.new(0, 6)
-
-local function createDottedEdge(parent, size, pos, isVertical)
-	local edge = Instance.new("ImageLabel", parent)
-	edge.Name = isVertical and "DottedV" or "DottedH"
-	edge.BackgroundTransparency = 1
-	edge.Size = size; edge.Position = pos
-	edge.Image = "rbxassetid://6071575925"
-	edge.ImageColor3 = Color3.fromRGB(0, 170, 255)
-	edge.ImageTransparency = 1
-	edge.ScaleType = Enum.ScaleType.Tile
-	edge.TileSize = isVertical and UDim2.new(0, 2, 0, 8) or UDim2.new(0, 8, 0, 2)
-	return edge
-end
-
-local snapTop = createDottedEdge(SnapGhostFrame, UDim2.new(1, 0, 0, 2), UDim2.new(0, 0, 0, 0), false)
-local snapBottom = createDottedEdge(SnapGhostFrame, UDim2.new(1, 0, 0, 2), UDim2.new(0, 0, 1, -2), false)
-local snapLeft = createDottedEdge(SnapGhostFrame, UDim2.new(0, 2, 1, 0), UDim2.new(0, 0, 0, 0), true)
-local snapRight = createDottedEdge(SnapGhostFrame, UDim2.new(0, 2, 1, 0), UDim2.new(1, -2, 0, 0), true)
-
---------------------------------------------------------------------------------
--- 3. CORE CONTEXT
---------------------------------------------------------------------------------
-local Core = {
-	NonUserGui = NonUserGui,
-	SystemGui = SystemGui,
-	CustomOpenGui = CustomOpenGui,
-	RootParent = RootParent,
-	DragOutlineFrame = DragOutlineFrame,
-	CurrentZIndex = 10,
+local Library = {
+	Version = "3.0.0",
+	CurrentTheme = "Dark",
 	CurrentModuleType = "Modern",
-	CurrentSubTheme = "Dark",
+	IsOutlineDrag = false,
+	LoadedModules = {},
+	RegisteredWindows = {},
 	ActiveWindows = {},
-	MruWindows = {},
 	MinimizedWindows = {},
 	FocusedWindow = nil,
-	CascadeState = { startX = 50, startY = 50, currentX = 50, currentY = 50, stepX = 30, stepY = 30, columnStartX = 50, columnStepX = 180 }
+	OnThemeChanged = Instance.new("BindableEvent"),
+	BaseThemeURL = "https://raw.githubusercontent.com/khngsml0-cmd/WindowLib_Theme/main/Themes/"
 }
 
-function Core.GetNextZIndex()
-	Core.CurrentZIndex = Core.CurrentZIndex + 1
-	return Core.CurrentZIndex
-end
+-- Bản đồ định tuyến SubTheme sang File Module tương ứng
+local THEME_ROUTING = {
+	["Dark"]      = { File = "Modern.lua",    ModuleType = "Modern",    SubTheme = "Dark" },
+	["Light"]     = { File = "Modern.lua",    ModuleType = "Modern",    SubTheme = "Light" },
+	["Classic"]   = { File = "Classic.lua",   ModuleType = "Classic",   SubTheme = "Classic" },
+	["ClassicV2"] = { File = "ClassicV2.lua", ModuleType = "ClassicV2", SubTheme = "ClassicV2" }
+}
 
-function Core.BringToFront(frame, winRecord)
-	if frame.ZIndex < Core.CurrentZIndex then
-		Core.CurrentZIndex = Core.CurrentZIndex + 1
-		frame.ZIndex = Core.CurrentZIndex
-	end
-	if winRecord then Core.SetFocus(winRecord) end
-end
+-- Khởi tạo Layer ScreenGui cơ sở
+local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
 
-function Core.SetFocus(winRecord)
-	if Core.FocusedWindow == winRecord then return end
-	if Core.FocusedWindow and Core.FocusedWindow.SetFocusVisual then
-		Core.FocusedWindow.SetFocusVisual(false)
-	end
-	Core.FocusedWindow = winRecord
-	if winRecord then
-		if winRecord.SetFocusVisual then winRecord.SetFocusVisual(true) end
-		for i, w in ipairs(Core.MruWindows) do
-			if w == winRecord then table.remove(Core.MruWindows, i); break end
-		end
-		table.insert(Core.MruWindows, 1, winRecord)
-	end
-	if Core.ActiveThemeModule and Core.ActiveThemeModule.UpdateTaskbar then
-		Core.ActiveThemeModule.UpdateTaskbar(Core)
-	end
-end
+local RootParent = Instance.new("ScreenGui")
+RootParent.Name = "WindowLib_Root"
+RootParent.DisplayOrder = 9000000
+RootParent.ResetOnSpawn = false
+RootParent.IgnoreGuiInset = true
+RootParent.Parent = PlayerGui
 
-function Core.UnregisterActiveWindow(winRecord)
-	for i, w in ipairs(Core.ActiveWindows) do
-		if w == winRecord then table.remove(Core.ActiveWindows, i); break end
-	end
-	for i, w in ipairs(Core.MruWindows) do
-		if w == winRecord then table.remove(Core.MruWindows, i); break end
-	end
-	if Core.FocusedWindow == winRecord then
-		Core.FocusedWindow = nil
-		if #Core.ActiveWindows > 0 then Core.SetFocus(Core.ActiveWindows[#Core.ActiveWindows]) end
-	end
-end
+local NonUserGui = Instance.new("ScreenGui")
+NonUserGui.Name = "WindowLib_NonUser"
+NonUserGui.DisplayOrder = 8000000
+NonUserGui.ResetOnSpawn = false
+NonUserGui.IgnoreGuiInset = true
+NonUserGui.Parent = PlayerGui
 
-function Core.RegisterMinimized(winRecord)
-	table.insert(Core.MinimizedWindows, winRecord)
-	Core.UpdateMinimizedGrid()
-end
+local CustomOpenGui = Instance.new("ScreenGui")
+CustomOpenGui.Name = "WindowLib_CustomOpenUI"
+CustomOpenGui.DisplayOrder = 8500000
+CustomOpenGui.ResetOnSpawn = false
+CustomOpenGui.IgnoreGuiInset = true
+CustomOpenGui.Parent = PlayerGui
 
-function Core.UnregisterMinimized(winRecord)
-	for i, w in ipairs(Core.MinimizedWindows) do
-		if w == winRecord then table.remove(Core.MinimizedWindows, i); break end
-	end
-	Core.UpdateMinimizedGrid()
-end
+Library.RootParent = RootParent
+Library.NonUserGui = NonUserGui
+Library.CustomOpenGui = CustomOpenGui
 
-function Core.UpdateMinimizedGrid()
-	local TWEEN_INFO_SMOOTH = TweenInfo.new(0.25, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut)
-	local itemW = 180; local itemH = 28; local pad = 6; local marginX = 10; local marginY = 10
-	local groups = {}
-	for _, win in ipairs(Core.MinimizedWindows) do
-		local p = win.TargetParent or Core.NonUserGui
-		groups[p] = groups[p] or {}
-		table.insert(groups[p], win)
-	end
+-- Khung hiển thị Outline Drag nét đứt toàn cục
+local DragOutlineFrame = Instance.new("Frame", NonUserGui)
+DragOutlineFrame.Name = "GlobalDragOutline"
+DragOutlineFrame.BackgroundTransparency = 1
+DragOutlineFrame.BorderSizePixel = 0
+DragOutlineFrame.Visible = false
+DragOutlineFrame.ZIndex = 99999
 
-	for parentObj, winGroup in pairs(groups) do
-		local containerWidth = 1920
-		if parentObj:IsA("GuiObject") and parentObj.AbsoluteSize.X > 0 then
-			containerWidth = parentObj.AbsoluteSize.X
-		elseif workspace.CurrentCamera then
-			containerWidth = workspace.CurrentCamera.ViewportSize.X
-		end
+local OutlineStroke = Instance.new("UIStroke", DragOutlineFrame)
+OutlineStroke.Color = Color3.fromRGB(0, 170, 255)
+OutlineStroke.Thickness = 1.5
+OutlineStroke.LineJoinMode = Enum.LineJoinMode.Miter
+Library.DragOutlineFrame = DragOutlineFrame
 
-		local maxCols = math.max(1, math.floor((containerWidth - marginX) / (itemW + pad)))
-		for idx, win in ipairs(winGroup) do
-			local col = (idx - 1) % maxCols
-			local row = math.floor((idx - 1) / maxCols)
-			local targetX = marginX + col * (itemW + pad)
-			local targetYOffset = -(marginY + itemH + (row * (itemH + pad)))
+-- Khung bóng mờ Aero Snap Ghost
+local SnapGhostFrame = Instance.new("Frame", NonUserGui)
+SnapGhostFrame.Name = "GlobalSnapGhost"
+SnapGhostFrame.BackgroundColor3 = Color3.fromRGB(0, 120, 215)
+SnapGhostFrame.BackgroundTransparency = 0.75
+SnapGhostFrame.BorderSizePixel = 0
+SnapGhostFrame.Visible = false
+SnapGhostFrame.ZIndex = 99998
+Instance.new("UICorner", SnapGhostFrame).CornerRadius = UDim.new(0, 8)
+local SnapGhostStroke = Instance.new("UIStroke", SnapGhostFrame)
+SnapGhostStroke.Color = Color3.fromRGB(0, 150, 255)
+SnapGhostStroke.Thickness = 2
+Library.SnapGhostFrame = SnapGhostFrame
 
-			TweenService:Create(win.Frame, TWEEN_INFO_SMOOTH, {
-				Position = UDim2.new(0, targetX, 1, targetYOffset),
-				Size = UDim2.new(0, itemW, 0, itemH)
-			}):Play()
-		end
-	end
-end
-
-function Core.GetNextCascadePosition(defaultSize, parent)
-	if parent ~= NonUserGui then return UDim2.new(0, 20, 0, 20) end
-	local camera = workspace.CurrentCamera
-	local viewport = camera and camera.ViewportSize or Vector2.new(1920, 1080)
-	local winW = defaultSize.X.Offset > 0 and defaultSize.X.Offset or 500
-	local winH = defaultSize.Y.Offset > 0 and defaultSize.Y.Offset or 350
-	local posX = Core.CascadeState.currentX; local posY = Core.CascadeState.currentY
-
-	if posY + winH > viewport.Y - 50 then
-		Core.CascadeState.columnStartX = Core.CascadeState.columnStartX + Core.CascadeState.columnStepX
-		posX = Core.CascadeState.columnStartX; posY = Core.CascadeState.startY
-		Core.CascadeState.currentX = posX; Core.CascadeState.currentY = posY
-	end
-	if posX + winW > viewport.X - 30 then
-		Core.CascadeState.columnStartX = Core.CascadeState.startX
-		posX = Core.CascadeState.startX; posY = Core.CascadeState.startY
-		Core.CascadeState.currentX = posX; Core.CascadeState.currentY = posY
-	end
-
-	Core.CascadeState.currentX = Core.CascadeState.currentX + Core.CascadeState.stepX
-	Core.CascadeState.currentY = Core.CascadeState.currentY + Core.CascadeState.stepY
-	return UDim2.new(0, posX, 0, posY)
-end
-
-function Core.ShowSnapGhost(pos, size)
+function Library.ShowSnapGhost(pos, size)
+	SnapGhostFrame.Position = pos
+	SnapGhostFrame.Size = size
 	SnapGhostFrame.Visible = true
-	TweenService:Create(SnapGhostFrame, TweenInfo.new(0.15), {Position = pos, Size = size, BackgroundTransparency = 0.88}):Play()
-	for _, edge in ipairs({snapTop, snapBottom, snapLeft, snapRight}) do
-		TweenService:Create(edge, TweenInfo.new(0.15), {ImageTransparency = 0.1}):Play()
+end
+
+function Library.HideSnapGhost()
+	SnapGhostFrame.Visible = false
+end
+
+function Library.IsGlobalOutlineDrag()
+	return Library.IsOutlineDrag
+end
+
+function Library:SetOutlineDrag(state)
+	Library.IsOutlineDrag = state
+end
+
+local zIndexCounter = 100
+function Library.GetNextZIndex()
+	zIndexCounter = zIndexCounter + 5
+	return zIndexCounter
+end
+
+-- Tính toán tọa độ xuất hiện dạng bậc thang (Cascade)
+local cascadeOffset = 0
+function Library.GetNextCascadePosition(windowSize, targetParent)
+	local startX = 60 + (cascadeOffset * 25)
+	local startY = 60 + (cascadeOffset * 25)
+	cascadeOffset = (cascadeOffset + 1) % 6
+	return UDim2.new(0, startX, 0, startY)
+end
+
+--------------------------------------------------------------------------------
+-- QUẢN LÝ FOCUS, ACTIVE VÀ MINIMIZE WINDOWS
+--------------------------------------------------------------------------------
+function Library.BringToFront(mainFrame, windowRecord)
+	if not mainFrame or not mainFrame.Parent then return end
+	local topZ = Library.GetNextZIndex()
+	mainFrame.ZIndex = topZ
+	for _, child in ipairs(mainFrame:GetDescendants()) do
+		if child:IsA("GuiObject") then
+			child.ZIndex = topZ + (child.ZIndex % 10)
+		end
+	end
+
+	for _, win in ipairs(Library.ActiveWindows) do
+		if win ~= windowRecord and win.SetFocusVisual then
+			win.SetFocusVisual(false)
+		end
+	end
+
+	Library.FocusedWindow = windowRecord
+	if windowRecord and windowRecord.SetFocusVisual then
+		windowRecord.SetFocusVisual(true)
 	end
 end
 
-function Core.HideSnapGhost()
-	local t = TweenService:Create(SnapGhostFrame, TweenInfo.new(0.15), {BackgroundTransparency = 1})
-	for _, edge in ipairs({snapTop, snapBottom, snapLeft, snapRight}) do
-		TweenService:Create(edge, TweenInfo.new(0.15), {ImageTransparency = 1}):Play()
+function Library.SetFocus(windowRecord)
+	if windowRecord then
+		Library.BringToFront(windowRecord.Frame, windowRecord)
+	else
+		Library.FocusedWindow = nil
+		for _, win in ipairs(Library.ActiveWindows) do
+			if win.SetFocusVisual then win.SetFocusVisual(false) end
+		end
 	end
-	t:Play()
-	t.Completed:Connect(function()
-		if SnapGhostFrame.BackgroundTransparency >= 0.99 then SnapGhostFrame.Visible = false end
+end
+
+function Library.RegisterActiveWindow(windowRecord)
+	if not table.find(Library.ActiveWindows, windowRecord) then
+		table.insert(Library.ActiveWindows, windowRecord)
+	end
+end
+
+function Library.UnregisterActiveWindow(windowRecord)
+	local idx = table.find(Library.ActiveWindows, windowRecord)
+	if idx then table.remove(Library.ActiveWindows, idx) end
+	local minIdx = table.find(Library.MinimizedWindows, windowRecord)
+	if minIdx then table.remove(Library.MinimizedWindows, minIdx) end
+	if Library.FocusedWindow == windowRecord then
+		Library.FocusedWindow = nil
+	end
+end
+
+function Library.RegisterMinimized(windowRecord)
+	if not table.find(Library.MinimizedWindows, windowRecord) then
+		table.insert(Library.MinimizedWindows, windowRecord)
+	end
+end
+
+function Library.UnregisterMinimized(windowRecord)
+	local idx = table.find(Library.MinimizedWindows, windowRecord)
+	if idx then table.remove(Library.MinimizedWindows, idx) end
+end
+
+--------------------------------------------------------------------------------
+-- NẠP VÀ CHUYỂN ĐỔI MODULE THEME
+--------------------------------------------------------------------------------
+function Library.GetModuleForTheme(themeName)
+	local route = THEME_ROUTING[themeName] or THEME_ROUTING["Dark"]
+	local fileName = route.File
+
+	if Library.LoadedModules[fileName] then
+		return Library.LoadedModules[fileName], route
+	end
+
+	local url = Library.BaseThemeURL .. fileName
+	local success, content = pcall(function()
+		return game:HttpGet(url)
 	end)
-end
 
-function Core.IsGlobalOutlineDrag() return isGlobalOutlineDrag end
-
---------------------------------------------------------------------------------
--- 4. APP SWITCHER (CTRL + TAB) & DESKTOP TOGGLE (CTRL + D) GỐC
---------------------------------------------------------------------------------
-local AppSwitcherGui = Instance.new("ScreenGui")
-AppSwitcherGui.Name = "SYSTEM_AppSwitcher"
-AppSwitcherGui.IgnoreGuiInset = true
-AppSwitcherGui.DisplayOrder = BASE_DISPLAY_ORDER + 999950
-AppSwitcherGui.ResetOnSpawn = false
-AppSwitcherGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-AppSwitcherGui.Parent = SystemGui
-
-local SwitcherContainerModern = Instance.new("Frame", AppSwitcherGui)
-SwitcherContainerModern.Name = "SwitcherContainerModern"
-SwitcherContainerModern.BorderSizePixel = 0
-SwitcherContainerModern.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
-SwitcherContainerModern.BackgroundTransparency = 0.1
-SwitcherContainerModern.AnchorPoint = Vector2.new(0.5, 0.5)
-SwitcherContainerModern.Position = UDim2.new(0.5, 0, 0.5, 0)
-SwitcherContainerModern.AutomaticSize = Enum.AutomaticSize.XY
-SwitcherContainerModern.Visible = false
-Instance.new("UICorner", SwitcherContainerModern).CornerRadius = UDim.new(0, 10)
-
-local SwitcherStrokeModern = Instance.new("UIStroke", SwitcherContainerModern)
-SwitcherStrokeModern.Color = Color3.fromRGB(45, 45, 45)
-
-local SwitcherPaddingModern = Instance.new("UIPadding", SwitcherContainerModern)
-SwitcherPaddingModern.PaddingTop = UDim.new(0, 14); SwitcherPaddingModern.PaddingBottom = UDim.new(0, 14)
-SwitcherPaddingModern.PaddingLeft = UDim.new(0, 14); SwitcherPaddingModern.PaddingRight = UDim.new(0, 14)
-
-local SwitcherLayoutModern = Instance.new("UIListLayout", SwitcherContainerModern)
-SwitcherLayoutModern.FillDirection = Enum.FillDirection.Horizontal
-SwitcherLayoutModern.HorizontalAlignment = Enum.HorizontalAlignment.Center
-SwitcherLayoutModern.VerticalAlignment = Enum.VerticalAlignment.Center
-SwitcherLayoutModern.Padding = UDim.new(0, 10)
-
-local function applyClassic3DBorder(parentFrame)
-	local border = Instance.new("Frame", parentFrame)
-	border.Name = "Border"; border.Size = UDim2.new(1, 0, 1, 0); border.BackgroundTransparency = 1; border.BorderSizePixel = 0
-	local function addL(sz, ps, col)
-		local l = Instance.new("Frame", border)
-		l.BorderSizePixel = 0; l.Size = sz; l.Position = ps; l.BackgroundColor3 = col
+	if not success or not content or content == "" then
+		warn("[Library] Không thể tải Theme Module từ: " .. url)
+		return nil, route
 	end
-	addL(UDim2.new(1, 0, 0, 1), UDim2.new(0, 0, 1, -1), Color3.fromRGB(107, 107, 107))
-	addL(UDim2.new(0, 1, 1, 0), UDim2.new(1, -1, 0, 0), Color3.fromRGB(107, 107, 107))
-	addL(UDim2.new(1, -1, 0, 1), UDim2.new(0, 0, 0, 0), Color3.fromRGB(228, 228, 228))
-	addL(UDim2.new(0, 1, 1, -1), UDim2.new(0, 0, 0, 0), Color3.fromRGB(228, 228, 228))
-	return border
+
+	local loadFunc, err = loadstring(content)
+	if not loadFunc then
+		warn("[Library] Lỗi phân tích cú pháp Module (" .. fileName .. "): " .. tostring(err))
+		return nil, route
+	end
+
+	local themeModule = loadFunc()
+	Library.LoadedModules[fileName] = themeModule
+	return themeModule, route
 end
 
-local SwitcherContainerClassic = Instance.new("Frame", AppSwitcherGui)
-SwitcherContainerClassic.Name = "SwitcherContainerClassic"
-SwitcherContainerClassic.BorderSizePixel = 0
-SwitcherContainerClassic.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-SwitcherContainerClassic.AnchorPoint = Vector2.new(0.5, 0.5)
-SwitcherContainerClassic.Position = UDim2.new(0.5, 0, 0.5, 0)
-SwitcherContainerClassic.Size = UDim2.new(0, 0, 0, 50)
-SwitcherContainerClassic.AutomaticSize = Enum.AutomaticSize.X
-SwitcherContainerClassic.Visible = false
-applyClassic3DBorder(SwitcherContainerClassic)
+function Library:GetTheme()
+	return Library.CurrentTheme
+end
 
-local ClassicAppContainer = Instance.new("Frame", SwitcherContainerClassic)
-ClassicAppContainer.Name = "App"; ClassicAppContainer.BackgroundTransparency = 1
-ClassicAppContainer.Size = UDim2.new(1, -10, 1, -10); ClassicAppContainer.Position = UDim2.new(0.5, 0, 0.5, 0)
-ClassicAppContainer.AnchorPoint = Vector2.new(0.5, 0.5); ClassicAppContainer.AutomaticSize = Enum.AutomaticSize.X
+function Library:SetTheme(newThemeName)
+	local themeModule, route = Library.GetModuleForTheme(newThemeName)
+	if not themeModule then return end
 
-local ClassicAppLayout = Instance.new("UIListLayout", ClassicAppContainer)
-ClassicAppLayout.Padding = UDim.new(0, 10)
-ClassicAppLayout.FillDirection = Enum.FillDirection.Horizontal
-ClassicAppLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
-ClassicAppLayout.VerticalAlignment = Enum.VerticalAlignment.Center
+	local oldModuleType = Library.CurrentModuleType
+	local newModuleType = route.ModuleType
+	local isModuleChanged = (oldModuleType ~= newModuleType)
 
-local ClassicAppPadding = Instance.new("UIPadding", ClassicAppContainer)
-ClassicAppPadding.PaddingLeft = UDim.new(0, 8); ClassicAppPadding.PaddingRight = UDim.new(0, 8)
-
-local ClassicAppSelectTitle = Instance.new("TextLabel", SwitcherContainerClassic)
-ClassicAppSelectTitle.Name = "AppSelect"; ClassicAppSelectTitle.BackgroundTransparency = 1
-ClassicAppSelectTitle.AnchorPoint = Vector2.new(0.5, 0); ClassicAppSelectTitle.Position = UDim2.new(0.5, 0, 1, 10)
-ClassicAppSelectTitle.Size = UDim2.new(1, 40, 0, 20); ClassicAppSelectTitle.Font = Enum.Font.SourceSans
-ClassicAppSelectTitle.TextSize = 20; ClassicAppSelectTitle.TextColor3 = Color3.fromRGB(255, 255, 255); ClassicAppSelectTitle.Text = ""
-
-local ClassicAppSelectShadow = Instance.new("TextLabel", ClassicAppSelectTitle)
-ClassicAppSelectShadow.Name = "Shadow"; ClassicAppSelectShadow.BackgroundTransparency = 1
-ClassicAppSelectShadow.Position = UDim2.new(0, 1, 0, 1); ClassicAppSelectShadow.Size = UDim2.new(1, 0, 1, 0)
-ClassicAppSelectShadow.Font = Enum.Font.SourceSans; ClassicAppSelectShadow.TextSize = 20
-ClassicAppSelectShadow.TextColor3 = Color3.fromRGB(0, 0, 0); ClassicAppSelectShadow.ZIndex = 0; ClassicAppSelectShadow.Text = ""
-
-local isSwitcherOpen = false
-local switcherCurrentIdx = 1
-local switcherCardElements = {}
-local desktopMinimizedStack = {}
-local isDesktopMinimizedState = false
-
-local function renderSwitcherCards()
-	for _, card in ipairs(switcherCardElements) do card:Destroy() end
-	switcherCardElements = {}
-
-	local isClassic = (Core.CurrentModuleType == "Classic")
-	local currentPal = (Core.ActiveThemeModule and Core.ActiveThemeModule.Palettes[Core.CurrentSubTheme]) or {
-		SwitcherBackground = Color3.fromRGB(25, 25, 25),
-		SwitcherCardBg = Color3.fromRGB(35, 35, 35),
-		SwitcherCardSelected = Color3.fromRGB(50, 50, 50),
-		MainStroke = Color3.fromRGB(45, 45, 45),
-		TitleTextColor = Color3.fromRGB(240, 240, 240)
-	}
-
-	if isClassic then
-		SwitcherContainerModern.Visible = false
-		SwitcherContainerClassic.Visible = true
-
-		for idx, winData in ipairs(Core.MruWindows) do
-			local isSelected = (idx == switcherCurrentIdx)
-			local itemFrame = Instance.new("Frame", ClassicAppContainer)
-			itemFrame.Name = isSelected and "Template_Select" or "Template_Unselect"
-			itemFrame.Size = UDim2.new(0, 35, 0, 35); itemFrame.BorderSizePixel = 0
-			itemFrame.BackgroundColor3 = isSelected and Color3.fromRGB(0, 171, 255) or Color3.fromRGB(255, 255, 255)
-
-			local stroke = Instance.new("UIStroke", itemFrame)
-			stroke.Thickness = 2; stroke.Color = Color3.fromRGB(52, 103, 154)
-			stroke.LineJoinMode = Enum.LineJoinMode.Miter; stroke.Enabled = isSelected
-
-			local icon = Instance.new("ImageLabel", itemFrame)
-			icon.Name = "Iconapp"; icon.BackgroundTransparency = 1
-			icon.AnchorPoint = Vector2.new(0.5, 0.5); icon.Position = UDim2.new(0.5, 0, 0.5, 0)
-			icon.Size = UDim2.new(0, 20, 0, 20)
-			icon.Image = winData.GetIcon and winData.GetIcon() or "rbxasset://textures/ui/GuiImagePlaceholder.png"
-
-			table.insert(switcherCardElements, itemFrame)
-		end
-
-		local activeWin = Core.MruWindows[switcherCurrentIdx]
-		local titleText = activeWin and (activeWin.GetTitle and activeWin.GetTitle() or "Window") or ""
-		ClassicAppSelectTitle.Text = titleText
-		ClassicAppSelectShadow.Text = titleText
-	else
-		SwitcherContainerClassic.Visible = false
-		SwitcherContainerModern.Visible = true
-		SwitcherContainerModern.BackgroundColor3 = currentPal.SwitcherBackground
-		SwitcherStrokeModern.Color = currentPal.MainStroke
-
-		for idx, winData in ipairs(Core.MruWindows) do
-			local isSelected = (idx == switcherCurrentIdx)
-			local card = Instance.new("Frame", SwitcherContainerModern)
-			card.Name = "Card_" .. idx
-			card.Size = UDim2.new(0, 95, 0, 85); card.BorderSizePixel = 0
-			card.BackgroundColor3 = isSelected and currentPal.SwitcherCardSelected or currentPal.SwitcherCardBg
-			Instance.new("UICorner", card).CornerRadius = UDim.new(0, 6)
-
-			local cardStroke = Instance.new("UIStroke", card)
-			cardStroke.Color = isSelected and Color3.fromRGB(0, 140, 255) or currentPal.MainStroke
-			cardStroke.Thickness = isSelected and 2 or 1
-
-			local cardPadding = Instance.new("UIPadding", card)
-			cardPadding.PaddingTop = UDim.new(0, 8); cardPadding.PaddingBottom = UDim.new(0, 6)
-			cardPadding.PaddingLeft = UDim.new(0, 6); cardPadding.PaddingRight = UDim.new(0, 6)
-
-			local cardLayout = Instance.new("UIListLayout", card)
-			cardLayout.FillDirection = Enum.FillDirection.Vertical
-			cardLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
-			cardLayout.VerticalAlignment = Enum.VerticalAlignment.Center
-			cardLayout.Padding = UDim.new(0, 6)
-
-			local icon = Instance.new("ImageLabel", card)
-			icon.BackgroundTransparency = 1; icon.Size = UDim2.new(0, 36, 0, 36)
-			icon.Image = winData.GetIcon and winData.GetIcon() or "rbxasset://textures/ui/GuiImagePlaceholder.png"
-
-			local title = Instance.new("TextLabel", card)
-			title.BackgroundTransparency = 1; title.Size = UDim2.new(1, -12, 0, 16); title.TextSize = 11
-			title.TextColor3 = currentPal.TitleTextColor
-			title.FontFace = Font.new("rbxassetid://12187365364", Enum.FontWeight.Medium, Enum.FontStyle.Normal)
-			title.Text = winData.GetTitle and winData.GetTitle() or "Window"
-			title.TextTruncate = Enum.TextTruncate.AtEnd
-
-			table.insert(switcherCardElements, card)
+	-- Dọn dẹp theme cũ nếu chuyển đổi kiểu kiến trúc
+	if isModuleChanged and oldModuleType then
+		local oldRoute = THEME_ROUTING[Library.CurrentTheme]
+		if oldRoute and Library.LoadedModules[oldRoute.File] and Library.LoadedModules[oldRoute.File].Cleanup then
+			Library.LoadedModules[oldRoute.File].Cleanup(Library)
 		end
 	end
-end
 
-local function updateSwitcherSelection()
-	local isClassic = (Core.CurrentModuleType == "Classic")
-	local currentPal = (Core.ActiveThemeModule and Core.ActiveThemeModule.Palettes[Core.CurrentSubTheme]) or {
-		SwitcherCardBg = Color3.fromRGB(35, 35, 35),
-		SwitcherCardSelected = Color3.fromRGB(50, 50, 50),
-		MainStroke = Color3.fromRGB(45, 45, 45),
-	}
+	Library.CurrentTheme = newThemeName
+	Library.CurrentModuleType = newModuleType
 
-	if isClassic then
-		for idx, card in ipairs(switcherCardElements) do
-			local isSelected = (idx == switcherCurrentIdx)
-			card.BackgroundColor3 = isSelected and Color3.fromRGB(0, 171, 255) or Color3.fromRGB(255, 255, 255)
-			local stroke = card:FindFirstChildOfClass("UIStroke")
-			if stroke then stroke.Enabled = isSelected end
-		end
-		local activeWin = Core.MruWindows[switcherCurrentIdx]
-		local titleText = activeWin and (activeWin.GetTitle and activeWin.GetTitle() or "Window") or ""
-		ClassicAppSelectTitle.Text = titleText
-		ClassicAppSelectShadow.Text = titleText
-	else
-		for idx, card in ipairs(switcherCardElements) do
-			local isSelected = (idx == switcherCurrentIdx)
-			card.BackgroundColor3 = isSelected and currentPal.SwitcherCardSelected or currentPal.SwitcherCardBg
-			local stroke = card:FindFirstChildOfClass("UIStroke")
-			if stroke then
-				stroke.Color = isSelected and Color3.fromRGB(0, 140, 255) or currentPal.MainStroke
-				stroke.Thickness = isSelected and 2 or 1
+	-- Khởi tạo theme mới nếu cần
+	if themeModule.Init then
+		themeModule.Init(Library)
+	end
+
+	-- Xử lý Hot-swap màu sắc hoặc Auto-Rebuild toàn bộ Window
+	for _, reg in ipairs(Library.RegisteredWindows) do
+		local oldRecord = reg.CurrentRecord
+		local savedPos = oldRecord and oldRecord.Frame and oldRecord.Frame.Position
+		local savedSize = oldRecord and oldRecord.Frame and oldRecord.Frame.Size
+		local isVisible = oldRecord and oldRecord.Frame and oldRecord.Frame.Visible
+
+		if not isModuleChanged and oldRecord and oldRecord.UpdateTheme and themeModule.Palettes[route.SubTheme] then
+			-- Hot-swap mượt mà bằng Tween nếu cùng loại kiến trúc
+			oldRecord.UpdateTheme(themeModule.Palettes[route.SubTheme])
+		else
+			-- Auto-Rebuild sang kiến trúc mới
+			if oldRecord and oldRecord.Close then
+				oldRecord.Close()
+			elseif oldRecord and oldRecord.Frame then
+				oldRecord.Frame:Destroy()
 			end
+
+			local configCopy = {}
+			for k, v in pairs(reg.Config) do configCopy[k] = v end
+			if savedPos then configCopy.Position = savedPos end
+			if savedSize then configCopy.Size = savedSize end
+
+			local newRecord = themeModule.CreateWindow(Library, configCopy, route.SubTheme)
+			reg.CurrentRecord = newRecord
+			Library.RegisterActiveWindow(newRecord)
+
+			if isVisible ~= nil then
+				newRecord.API:SetVisible(isVisible)
+			end
+
+			-- Thực thi Builder Callback dựng lại nội dung bên trong cửa sổ
+			if reg.BuilderCallback then
+				local container = newRecord.API:GetContainer()
+				container:ClearAllChildren()
+				reg.BuilderCallback(container, newRecord.API)
+			end
+
+			Library.BringToFront(newRecord.Frame, newRecord)
+		end
+	end
+
+	Library.OnThemeChanged:Fire(newThemeName)
+end
+
+--------------------------------------------------------------------------------
+-- HỆ THỐNG CONTEXT MENU TOÀN CỤC
+--------------------------------------------------------------------------------
+local activeContextMenus = {}
+
+function Library.ClearSubmenus(level)
+	for i = level, #activeContextMenus do
+		if activeContextMenus[i] then
+			activeContextMenus[i]:Destroy()
+			activeContextMenus[i] = nil
 		end
 	end
 end
 
-local function openSwitcher()
-	if #Core.MruWindows == 0 then return end
-	isSwitcherOpen = true
-	switcherCurrentIdx = (#Core.MruWindows >= 2) and 2 or 1
-	renderSwitcherCards()
-	updateSwitcherSelection()
-end
+function Library.RenderContextMenu(screenPos, items, level)
+	level = level or 1
+	Library.ClearSubmenus(level)
 
-local function cycleSwitcher()
-	if not isSwitcherOpen or #Core.MruWindows == 0 then return end
-	switcherCurrentIdx = (switcherCurrentIdx % #Core.MruWindows) + 1
-	updateSwitcherSelection()
-end
+	local route = THEME_ROUTING[Library.CurrentTheme] or THEME_ROUTING["Dark"]
+	local currentModule = Library.LoadedModules[route.File]
+	local palette = (currentModule and currentModule.Palettes and currentModule.Palettes[route.SubTheme])
+		or {
+			ContextMenuBackground = Color3.fromRGB(35, 35, 35),
+			ContextMenuStroke = Color3.fromRGB(60, 60, 60),
+			ContextItemDefault = Color3.fromRGB(35, 35, 35),
+			ContextItemHover = Color3.fromRGB(40, 90, 150),
+			ContextItemText = Color3.fromRGB(240, 240, 240),
+			ContextItemTextDisabled = Color3.fromRGB(140, 140, 140),
+			ContextItemSeparator = Color3.fromRGB(70, 70, 70),
+			ContextCheckBoxBg = Color3.fromRGB(25, 25, 25),
+			ContextCheckMark = Color3.fromRGB(45, 120, 200),
+			ContextArrow = Color3.fromRGB(180, 180, 180)
+		}
 
-local function closeSwitcherAndSelect()
-	if not isSwitcherOpen then return end
-	isSwitcherOpen = false
-	SwitcherContainerModern.Visible = false
-	SwitcherContainerClassic.Visible = false
+	local isClassicStyle = (route.ModuleType == "Classic" or route.ModuleType == "ClassicV2")
 
-	local targetWin = Core.MruWindows[switcherCurrentIdx]
-	if targetWin then
-		if targetWin.IsMinimized and targetWin.IsMinimized() then targetWin.Restore() end
-		if targetWin.Focus then targetWin.Focus() end
-	end
-end
+	local menuFrame = Instance.new("Frame", NonUserGui)
+	menuFrame.Name = "ContextMenu_L" .. level
+	menuFrame.BackgroundColor3 = palette.ContextMenuBackground
+	menuFrame.BorderSizePixel = 0
+	menuFrame.Position = UDim2.new(0, screenPos.X, 0, screenPos.Y)
+	menuFrame.Size = UDim2.new(0, 190, 0, 0)
+	menuFrame.AutomaticSize = Enum.AutomaticSize.Y
+	menuFrame.ClipsDescendants = false
+	menuFrame.ZIndex = 95000 + (level * 10)
 
-local ctrlPressed = false
-UserInputService.InputBegan:Connect(function(input)
-	if input.KeyCode == Enum.KeyCode.LeftControl or input.KeyCode == Enum.KeyCode.RightControl then ctrlPressed = true end
-	
-	-- Phím tắt chuyển Tab (Ctrl + Tab)
-	if input.KeyCode == Enum.KeyCode.Tab and ctrlPressed then
-		if not isSwitcherOpen then openSwitcher() else cycleSwitcher() end
-	end
+	local menuCorner = Instance.new("UICorner", menuFrame)
+	menuCorner.CornerRadius = isClassicStyle and UDim.new(0, 0) or UDim.new(0, 6)
 
-	-- Phím tắt Ẩn/Hiện Desktop (Ctrl + D)
-	if input.KeyCode == Enum.KeyCode.D and ctrlPressed then
-		if not isDesktopMinimizedState then
-			desktopMinimizedStack = {}
-			local anyMinimized = false
-			for _, win in ipairs(Core.ActiveWindows) do
-				if win.IsMinimized and not win.IsMinimized() then
-					table.insert(desktopMinimizedStack, win)
-					win.Minimize()
-					anyMinimized = true
+	local menuStroke = Instance.new("UIStroke", menuFrame)
+	menuStroke.Color = palette.ContextMenuStroke
+	menuStroke.Thickness = 1
+
+	local menuPadding = Instance.new("UIPadding", menuFrame)
+	menuPadding.PaddingTop = UDim.new(0, 4); menuPadding.PaddingBottom = UDim.new(0, 4)
+	menuPadding.PaddingLeft = UDim.new(0, 4); menuPadding.PaddingRight = UDim.new(0, 4)
+
+	local menuLayout = Instance.new("UIListLayout", menuFrame)
+	menuLayout.Padding = UDim.new(0, 2)
+	menuLayout.SortOrder = Enum.SortOrder.LayoutOrder
+
+	for _, item in ipairs(items) do
+		if item.Type == "Separator" then
+			local sep = Instance.new("Frame", menuFrame)
+			sep.Name = "Separator"
+			sep.BorderSizePixel = 0
+			sep.BackgroundColor3 = palette.ContextItemSeparator
+			sep.Size = UDim2.new(1, 0, 0, 1)
+			sep.ZIndex = menuFrame.ZIndex + 1
+		else
+			local itemBtn = Instance.new("ImageButton", menuFrame)
+			itemBtn.Name = "Item_" .. tostring(item.Text)
+			itemBtn.BorderSizePixel = 0
+			itemBtn.AutoButtonColor = false
+			itemBtn.BackgroundColor3 = palette.ContextItemDefault
+			itemBtn.Size = UDim2.new(1, 0, 0, 24)
+			itemBtn.ZIndex = menuFrame.ZIndex + 1
+
+			local itemCorner = Instance.new("UICorner", itemBtn)
+			itemCorner.CornerRadius = isClassicStyle and UDim.new(0, 0) or UDim.new(0, 4)
+
+			local itemText = Instance.new("TextLabel", itemBtn)
+			itemText.BackgroundTransparency = 1
+			itemText.Size = UDim2.new(1, -28, 1, 0)
+			itemText.Position = UDim2.new(0, 24, 0, 0)
+			itemText.TextXAlignment = Enum.TextXAlignment.Left
+			itemText.TextSize = 12
+			itemText.TextColor3 = item.Disabled and palette.ContextItemTextDisabled or palette.ContextItemText
+			itemText.FontFace = isClassicStyle and Font.fromEnum(Enum.Font.SourceSans) or Font.new("rbxassetid://12187365364", Enum.FontWeight.Medium, Enum.FontStyle.Normal)
+			itemText.Text = item.Text or ""
+			itemText.ZIndex = itemBtn.ZIndex + 1
+
+			-- Icon hoặc Checkbox nếu có
+			if item.Type == "Select" then
+				local check = Instance.new("Frame", itemBtn)
+				check.BorderSizePixel = 0
+				check.BackgroundColor3 = palette.ContextCheckBoxBg
+				check.Size = UDim2.new(0, 14, 0, 14)
+				check.Position = UDim2.new(0, 4, 0.5, -7)
+				check.ZIndex = itemBtn.ZIndex + 1
+				Instance.new("UICorner", check).CornerRadius = isClassicStyle and UDim.new(0, 0) or UDim.new(0, 3)
+
+				if item.Selected then
+					local mark = Instance.new("Frame", check)
+					mark.BorderSizePixel = 0
+					mark.BackgroundColor3 = palette.ContextCheckMark
+					mark.Size = UDim2.new(0, 8, 0, 8)
+					mark.AnchorPoint = Vector2.new(0.5, 0.5)
+					mark.Position = UDim2.new(0.5, 0, 0.5, 0)
+					mark.ZIndex = check.ZIndex + 1
+					Instance.new("UICorner", mark).CornerRadius = isClassicStyle and UDim.new(0, 0) or UDim.new(0, 2)
 				end
 			end
-			if anyMinimized then isDesktopMinimizedState = true end
-		else
-			for _, win in ipairs(desktopMinimizedStack) do
-				if win and win.Restore then win.Restore() end
+
+			-- Submenu Arrow
+			if item.Type == "Submenu" then
+				local arrow = Instance.new("TextLabel", itemBtn)
+				arrow.BackgroundTransparency = 1
+				arrow.Size = UDim2.new(0, 16, 1, 0)
+				arrow.AnchorPoint = Vector2.new(1, 0)
+				arrow.Position = UDim2.new(1, -4, 0, 0)
+				arrow.Text = "▶"
+				arrow.TextSize = 9
+				arrow.TextColor3 = palette.ContextArrow
+				arrow.ZIndex = itemBtn.ZIndex + 1
 			end
-			desktopMinimizedStack = {}
-			isDesktopMinimizedState = false
+
+			if not item.Disabled then
+				itemBtn.MouseEnter:Connect(function()
+					itemBtn.BackgroundColor3 = palette.ContextItemHover
+					if isClassicStyle then itemText.TextColor3 = Color3.fromRGB(0, 0, 0) end
+					if item.Type == "Submenu" and item.Items then
+						local nextPos = Vector2.new(menuFrame.AbsolutePosition.X + menuFrame.AbsoluteSize.X + 2, itemBtn.AbsolutePosition.Y)
+						Library.RenderContextMenu(nextPos, item.Items, level + 1)
+					else
+						Library.ClearSubmenus(level + 1)
+					end
+				end)
+
+				itemBtn.MouseLeave:Connect(function()
+					itemBtn.BackgroundColor3 = palette.ContextItemDefault
+					if isClassicStyle then itemText.TextColor3 = palette.ContextItemText end
+				end)
+
+				itemBtn.MouseButton1Click:Connect(function()
+					if item.Type == "Select" then
+						item.Selected = not item.Selected
+						if item.Callback then item.Callback(item.Selected) end
+						Library.ClearSubmenus(1)
+					elseif item.Type == "Button" then
+						if item.Callback then item.Callback() end
+						Library.ClearSubmenus(1)
+					end
+				end)
+			end
 		end
 	end
-end)
 
-UserInputService.InputEnded:Connect(function(input)
-	if input.KeyCode == Enum.KeyCode.LeftControl or input.KeyCode == Enum.KeyCode.RightControl then
-		ctrlPressed = false
-		if isSwitcherOpen then closeSwitcherAndSelect() end
-	end
-end)
+	activeContextMenus[level] = menuFrame
+end
 
--- Click ra ngoài cửa sổ tự động mất Focus
 UserInputService.InputBegan:Connect(function(input)
-	if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-		if Core.FocusedWindow == nil then return end
-
-		local rawMousePos = UserInputService:GetMouseLocation()
-		local mousePos = Vector2.new(rawMousePos.X, rawMousePos.Y - GuiService:GetGuiInset().Y)
-
-		local clickedInsideAny = false
-		for _, win in ipairs(Core.ActiveWindows) do
-			if win.Frame and win.Frame.Parent and win.Frame.Visible then
-				local pos = win.Frame.AbsolutePosition
-				local size = win.Frame.AbsoluteSize
-				if mousePos.X >= pos.X and mousePos.X <= pos.X + size.X and mousePos.Y >= pos.Y and mousePos.Y <= pos.Y + size.Y then
-					clickedInsideAny = true
+	if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.MouseButton2 or input.UserInputType == Enum.UserInputType.Touch then
+		local mousePos = UserInputService:GetMouseLocation()
+		local clickedInside = false
+		for _, menu in pairs(activeContextMenus) do
+			if menu and menu.Parent then
+				local p = menu.AbsolutePosition
+				local s = menu.AbsoluteSize
+				if mousePos.X >= p.X and mousePos.X <= p.X + s.X and mousePos.Y >= p.Y and mousePos.Y <= p.Y + s.Y then
+					clickedInside = true
 					break
 				end
 			end
 		end
-
-		if not clickedInsideAny then
-			Core.SetFocus(nil)
+		if not clickedInside then
+			Library.ClearSubmenus(1)
 		end
 	end
 end)
 
 --------------------------------------------------------------------------------
--- 5. CONTEXT MENU SYSTEM GỐC
+-- HỆ THỐNG THÔNG BÁO (NOTIFICATIONS)
 --------------------------------------------------------------------------------
-local activeSubmenuFrames = {}
+local NotiHolder = Instance.new("Frame", NonUserGui)
+NotiHolder.Name = "NotificationHolder"
+NotiHolder.BackgroundTransparency = 1
+NotiHolder.Position = UDim2.new(1, -290, 1, -20)
+NotiHolder.AnchorPoint = Vector2.new(0, 1)
+NotiHolder.Size = UDim2.new(0, 280, 0, 0)
+NotiHolder.AutomaticSize = Enum.AutomaticSize.Y
+NotiHolder.ZIndex = 98000
 
-local function clearSubmenusFromLevel(level)
-	for i = #activeSubmenuFrames, level, -1 do
-		if activeSubmenuFrames[i] then
-			activeSubmenuFrames[i]:Destroy()
-			table.remove(activeSubmenuFrames, i)
-		end
-	end
-end
+local NotiLayout = Instance.new("UIListLayout", NotiHolder)
+NotiLayout.VerticalAlignment = Enum.VerticalAlignment.Bottom
+NotiLayout.Padding = UDim.new(0, 8)
+NotiLayout.SortOrder = Enum.SortOrder.LayoutOrder
 
-local function renderContextMenuFrame(pos, items, level, parentBtnWidth)
-	level = level or 1
-	clearSubmenusFromLevel(level)
+function Library:Notify(cfg)
+	local title = cfg.Title or "Thông Báo"
+	local subtitle = cfg.Subtitle or ""
+	local duration = cfg.Duration or 3.5
 
-	local isClassic = (Core.CurrentModuleType == "Classic")
-	local currentPal = (Core.ActiveThemeModule and Core.ActiveThemeModule.Palettes[Core.CurrentSubTheme]) or {
-		ContextMenuBackground = Color3.fromRGB(35, 35, 35),
-		ContextMenuStroke = Color3.fromRGB(60, 60, 60),
-		ContextItemDefault = Color3.fromRGB(35, 35, 35),
-		ContextItemHover = Color3.fromRGB(40, 90, 150),
-		ContextItemText = Color3.fromRGB(240, 240, 240),
-		ContextItemTextDisabled = Color3.fromRGB(140, 140, 140),
-		ContextItemSeparator = Color3.fromRGB(70, 70, 70),
-		ContextCheckBoxBg = Color3.fromRGB(25, 25, 25),
-		ContextCheckMark = Color3.fromRGB(45, 120, 200),
-		ContextArrow = Color3.fromRGB(180, 180, 180)
-	}
+	local route = THEME_ROUTING[Library.CurrentTheme] or THEME_ROUTING["Dark"]
+	local currentModule = Library.LoadedModules[route.File]
+	local palette = (currentModule and currentModule.Palettes and currentModule.Palettes[route.SubTheme])
+		or {
+			NotiBackground = Color3.fromRGB(25, 25, 25),
+			NotiStroke = Color3.fromRGB(55, 55, 55),
+			NotiTitle = Color3.fromRGB(255, 255, 255),
+			NotiSubtitle = Color3.fromRGB(200, 200, 200),
+			NotiCloseIcon = Color3.fromRGB(220, 220, 220)
+		}
 
-	local font = isClassic and Enum.Font.SourceSans or Enum.Font.Gotham
-	local itemHeight = isClassic and 25 or 24
-	local sepHeight = 10; local itemSpacing = isClassic and 0 or 2
-	local padTop = isClassic and 3 or 4; local padBottom = isClassic and 3 or 4
-	local padLeft = isClassic and 3 or 4; local padRight = isClassic and 3 or 4
+	local isClassicStyle = (route.ModuleType == "Classic" or route.ModuleType == "ClassicV2")
 
-	local minMenuWidth = 180
-	local maxItemWidth = minMenuWidth
+	local card = Instance.new("Frame", NotiHolder)
+	card.Name = "NotiCard"
+	card.BackgroundColor3 = palette.NotiBackground
+	card.BorderSizePixel = 0
+	card.Size = UDim2.new(1, 0, 0, 0)
+	card.AutomaticSize = Enum.AutomaticSize.Y
+	card.ZIndex = 98001
 
-	for _, item in ipairs(items or {}) do
-		if item.Type ~= "Separator" then
-			local text = item.Text or ""
-			local rawSize = TextService:GetTextSize(text, 13, font, Vector2.new(2000, 50))
-			local textW = math.ceil(rawSize.X * 1.1)
+	local cCorner = Instance.new("UICorner", card)
+	cCorner.CornerRadius = isClassicStyle and UDim.new(0, 0) or UDim.new(0, 8)
 
-			local extraPadding = 36
-			if item.Type == "Select" then extraPadding = 64
-			elseif item.Type == "Submenu" then extraPadding = 54 end
+	local cStroke = Instance.new("UIStroke", card)
+	cStroke.Color = palette.NotiStroke
 
-			local itemW = textW + extraPadding
-			if itemW > maxItemWidth then maxItemWidth = itemW end
-		end
-	end
+	local cPadding = Instance.new("UIPadding", card)
+	cPadding.PaddingTop = UDim.new(0, 8); cPadding.PaddingBottom = UDim.new(0, 8)
+	cPadding.PaddingLeft = UDim.new(0, 10); cPadding.PaddingRight = UDim.new(0, 10)
 
-	local menuWidth = math.ceil(maxItemWidth) + 12
-	local totalContentHeight = 0
-	for _, item in ipairs(items or {}) do
-		totalContentHeight = totalContentHeight + ((item.Type == "Separator") and sepHeight or itemHeight)
-	end
+	local tLabel = Instance.new("TextLabel", card)
+	tLabel.BackgroundTransparency = 1
+	tLabel.Size = UDim2.new(1, 0, 0, 18)
+	tLabel.TextSize = 13
+	tLabel.TextColor3 = palette.NotiTitle
+	tLabel.TextXAlignment = Enum.TextXAlignment.Left
+	tLabel.FontFace = isClassicStyle and Font.fromEnum(Enum.Font.SourceSansBold) or Font.new("rbxassetid://12187365364", Enum.FontWeight.Bold, Enum.FontStyle.Normal)
+	tLabel.Text = title
+	tLabel.ZIndex = 98002
 
-	local totalGaps = math.max(0, #items - 1) * itemSpacing
-	local totalMenuHeight = totalContentHeight + totalGaps + padTop + padBottom
-
-	local menuFrame = Instance.new("ImageButton", ContextMenuGui)
-	menuFrame.Name = "ContextMenuLevel_" .. level
-	menuFrame.BorderSizePixel = 0
-	menuFrame.AutoButtonColor = false
-	menuFrame.BackgroundColor3 = isClassic and Color3.fromRGB(255, 255, 255) or currentPal.ContextMenuBackground
-	menuFrame.Size = UDim2.new(0, menuWidth, 0, totalMenuHeight)
-	menuFrame.ZIndex = 999900 + level
-
-	if isClassic then
-		applyClassic3DBorder(menuFrame)
-	else
-		Instance.new("UICorner", menuFrame).CornerRadius = UDim.new(0, 6)
-		local stroke = Instance.new("UIStroke", menuFrame)
-		stroke.Color = currentPal.ContextMenuStroke
-	end
-
-	local padding = Instance.new("UIPadding", menuFrame)
-	padding.PaddingTop = UDim.new(0, padTop); padding.PaddingBottom = UDim.new(0, padBottom)
-	padding.PaddingLeft = UDim.new(0, padLeft); padding.PaddingRight = UDim.new(0, padRight)
-
-	local listContainer = Instance.new("Frame", menuFrame)
-	listContainer.BackgroundTransparency = 1; listContainer.Size = UDim2.new(1, 0, 1, 0); listContainer.ZIndex = menuFrame.ZIndex + 1
-
-	local layout = Instance.new("UIListLayout", listContainer)
-	layout.HorizontalAlignment = Enum.HorizontalAlignment.Left
-	layout.SortOrder = Enum.SortOrder.LayoutOrder
-	layout.Padding = UDim.new(0, itemSpacing)
-
-	local camera = workspace.CurrentCamera
-	local viewport = camera and camera.ViewportSize or Vector2.new(1920, 1080)
-	local finalX = pos.X; local finalY = pos.Y
-
-	if finalX + menuWidth > viewport.X - 10 then
-		finalX = (level > 1 and parentBtnWidth) and math.max(10, pos.X - parentBtnWidth - menuWidth - 4) or math.max(10, pos.X - menuWidth)
-	end
-	if finalY + totalMenuHeight > viewport.Y - 10 then
-		finalY = math.max(10, viewport.Y - totalMenuHeight - 10)
-	end
-
-	menuFrame.Position = UDim2.new(0, finalX, 0, finalY)
-	table.insert(activeSubmenuFrames, menuFrame)
-
-	local itemDefaultBg = isClassic and Color3.fromRGB(255, 255, 255) or currentPal.ContextItemDefault
-	local itemHoverBg = isClassic and Color3.fromRGB(225, 225, 225) or currentPal.ContextItemHover
-	local currentYOffset = finalY + padTop
-
-	for itemIndex, item in ipairs(items or {}) do
-		local thisItemY = currentYOffset
-		local thisItemH = (item.Type == "Separator") and sepHeight or itemHeight
-
-		if item.Type == "Separator" then
-			local Sep = Instance.new("Frame", listContainer)
-			Sep.BackgroundTransparency = 1; Sep.Size = UDim2.new(1, 0, 0, sepHeight)
-			local LineFrame = Instance.new("Frame", Sep)
-			LineFrame.BorderSizePixel = 0
-			LineFrame.BackgroundColor3 = isClassic and Color3.fromRGB(171, 171, 171) or currentPal.ContextItemSeparator
-			LineFrame.AnchorPoint = Vector2.new(0.5, 0.5); LineFrame.Position = UDim2.new(0.5, 0, 0.5, 0); LineFrame.Size = UDim2.new(1, -6, 0, 1)
-		elseif item.Type == "Button" then
-			local Btn = Instance.new("TextButton", listContainer)
-			Btn.BorderSizePixel = 0; Btn.AutoButtonColor = false; Btn.BackgroundColor3 = itemDefaultBg
-			Btn.Size = UDim2.new(1, 0, 0, itemHeight); Btn.Text = ""
-			if not isClassic then Instance.new("UICorner", Btn).CornerRadius = UDim.new(0, 4) end
-
-			local Text = Instance.new("TextLabel", Btn)
-			Text.BackgroundTransparency = 1; Text.TextSize = 13; Text.TextXAlignment = Enum.TextXAlignment.Left
-			Text.TextColor3 = item.Disabled and (isClassic and Color3.fromRGB(101, 101, 101) or currentPal.ContextItemTextDisabled) or (isClassic and Color3.fromRGB(0, 0, 0) or currentPal.ContextItemText)
-			Text.Font = font; Text.Size = UDim2.new(1, 0, 1, 0); Text.Text = item.Text or ""
-			local Pad = Instance.new("UIPadding", Text); Pad.PaddingLeft = UDim.new(0, 8); Pad.PaddingRight = UDim.new(0, 8)
-
-			if not item.Disabled then
-				Btn.MouseEnter:Connect(function() Btn.BackgroundColor3 = itemHoverBg; if not isClassic then Text.TextColor3 = Color3.fromRGB(255, 255, 255) end end)
-				Btn.MouseLeave:Connect(function() Btn.BackgroundColor3 = itemDefaultBg; if not isClassic then Text.TextColor3 = currentPal.ContextItemText end end)
-				Btn.MouseButton1Click:Connect(function() clearSubmenusFromLevel(1); if item.Callback then item.Callback() end end)
-			end
-		end
-		currentYOffset = currentYOffset + thisItemH + itemSpacing
-	end
-	return menuFrame
-end
-
-Core.RenderContextMenu = renderContextMenuFrame
-Core.ClearSubmenus = clearSubmenusFromLevel
-
-UserInputService.InputBegan:Connect(function(input)
-	if input.UserInputType == Enum.UserInputType.MouseButton1 then
-		if #activeSubmenuFrames > 0 then
-			local rawMousePos = UserInputService:GetMouseLocation()
-			local mousePos = Vector2.new(rawMousePos.X, rawMousePos.Y - GuiService:GetGuiInset().Y)
-			local clickedInside = false
-			for _, f in ipairs(activeSubmenuFrames) do
-				if f and f.Parent then
-					local p = f.AbsolutePosition; local s = f.AbsoluteSize
-					if mousePos.X >= p.X and mousePos.X <= p.X + s.X and mousePos.Y >= p.Y and mousePos.Y <= p.Y + s.Y then
-						clickedInside = true; break
-					end
-				end
-			end
-			if not clickedInside then clearSubmenusFromLevel(1) end
-		end
-	end
-end)
-
---------------------------------------------------------------------------------
--- 6. MAIN LIBRARY ENGINE
---------------------------------------------------------------------------------
-local Library = {
-	CurrentThemeName = "Dark",
-	LoadedModules = {},
-	RegisteredWindows = {},
-	ActiveThemeModule = nil,
-	OnThemeChanged = Instance.new("BindableEvent")
-}
-
-function Library:FetchModule(moduleName)
-	if self.LoadedModules[moduleName] then return self.LoadedModules[moduleName] end
-
-	local url = GITHUB_RAW_BASE .. moduleName .. ".lua?t=" .. tick()
-	local success, response = pcall(function() return game:HttpGet(url) end)
-
-	if not success or not response or response:find("404: Not Found") or response:find("<html") then
-		warn("[UI Core] Không tìm thấy file " .. moduleName .. ".lua trên GitHub!")
-		return nil
-	end
-
-	local loadFunc, syntaxErr = loadstring(response)
-	if not loadFunc then
-		warn("[UI Core] Lỗi cú pháp trong file (" .. moduleName .. ".lua):", syntaxErr)
-		return nil
-	end
-
-	local execSuccess, moduleTable = pcall(loadFunc)
-	if execSuccess and type(moduleTable) == "table" and moduleTable.CreateWindow then
-		self.LoadedModules[moduleName] = moduleTable
-		return moduleTable
-	else
-		warn("[UI Core] File " .. moduleName .. " không hợp lệ!")
-		return nil
-	end
-end
-
-function Library:EnsureDefaultThemeLoaded()
-	if self.ActiveThemeModule then return end
-	local targetInfo = THEME_MAP[self.CurrentThemeName] or THEME_MAP.Dark
-	local moduleObj = self:FetchModule(targetInfo.Module)
-	if moduleObj then
-		self.ActiveThemeModule = moduleObj
-		Core.CurrentModuleType = moduleObj.Type
-		Core.CurrentSubTheme = targetInfo.SubTheme
-		Core.ActiveThemeModule = moduleObj
-		if moduleObj.Init then moduleObj.Init(Core) end
-	end
-end
-
-function Library:SetTheme(targetThemeName)
-	local targetInfo = THEME_MAP[targetThemeName]
-	if not targetInfo then return end
-
-	local targetModuleName = targetInfo.Module
-	local subTheme = targetInfo.SubTheme
-	local moduleObj = self:FetchModule(targetModuleName)
-	if not moduleObj then return end
-
-	local isSameArchetype = (Core.CurrentModuleType == moduleObj.Type)
-
-	if self.ActiveThemeModule and self.ActiveThemeModule.Cleanup and not isSameArchetype then
-		self.ActiveThemeModule.Cleanup(Core)
-	end
-
-	self.CurrentThemeName = targetThemeName
-	self.ActiveThemeModule = moduleObj
-	Core.CurrentModuleType = moduleObj.Type
-	Core.CurrentSubTheme = subTheme
-	Core.ActiveThemeModule = moduleObj
-
-	if moduleObj.Init and not isSameArchetype then
-		moduleObj.Init(Core)
-	end
-
-	if isSameArchetype then
-		local pal = moduleObj.Palettes[subTheme]
-		for _, win in ipairs(Core.ActiveWindows) do
-			if win.UpdateTheme then win.UpdateTheme(pal) end
-		end
-	else
-		for _, win in ipairs(Core.ActiveWindows) do
-			if win.Frame and win.Frame.Parent then win.Frame:Destroy() end
-		end
-		Core.ActiveWindows = {}
-		Core.MruWindows = {}
-		Core.MinimizedWindows = {}
-		Core.FocusedWindow = nil
-
-		for _, item in ipairs(self.RegisteredWindows) do
-			local winRecord = moduleObj.CreateWindow(Core, item.Config, subTheme)
-			table.insert(Core.ActiveWindows, winRecord)
-			table.insert(Core.MruWindows, 1, winRecord)
-			if item.Builder and type(item.Builder) == "function" then
-				item.Builder(winRecord.API:GetContainer(), winRecord.API)
-			end
-		end
-	end
-
-	self.OnThemeChanged:Fire(targetThemeName)
-end
-
-function Library:CreateWindow(config, builderCallback)
-	config = config or {}
-	self:EnsureDefaultThemeLoaded()
-
-	local targetInfo = THEME_MAP[self.CurrentThemeName] or THEME_MAP.Dark
-	local moduleObj = self.ActiveThemeModule
-
-	local registryItem = { Config = config, Builder = builderCallback }
-	table.insert(self.RegisteredWindows, registryItem)
-
-	local winRecord = moduleObj.CreateWindow(Core, config, targetInfo.SubTheme)
-	table.insert(Core.ActiveWindows, winRecord)
-	table.insert(Core.MruWindows, 1, winRecord)
-	Core.SetFocus(winRecord)
-
-	if builderCallback and type(builderCallback) == "function" then
-		builderCallback(winRecord.API:GetContainer(), winRecord.API)
-	end
-
-	return winRecord.API
-end
-
-function Library:Notify(config)
-	config = config or {}
-	local title = config.Title or "Notification"
-	local sub = config.Subtitle or ""
-	local duration = config.Duration or 4
-
-	local noti = Instance.new("Frame", NotificationGui)
-	noti.BorderSizePixel = 0; noti.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
-	noti.Size = UDim2.new(0, 280, 0, 0); noti.AutomaticSize = Enum.AutomaticSize.Y
-	Instance.new("UICorner", noti).CornerRadius = UDim.new(0, 6)
-	local strk = Instance.new("UIStroke", noti); strk.Color = Color3.fromRGB(55, 55, 55)
-
-	local pad = Instance.new("UIPadding", noti)
-	pad.PaddingTop = UDim.new(0, 10); pad.PaddingBottom = UDim.new(0, 10); pad.PaddingLeft = UDim.new(0, 12); pad.PaddingRight = UDim.new(0, 12)
-
-	local tLbl = Instance.new("TextLabel", noti)
-	tLbl.BackgroundTransparency = 1; tLbl.Font = Enum.Font.GothamBold; tLbl.TextSize = 14
-	tLbl.TextColor3 = Color3.fromRGB(255, 255, 255); tLbl.TextXAlignment = Enum.TextXAlignment.Left
-	tLbl.Text = title; tLbl.Size = UDim2.new(1, 0, 0, 16)
-
-	if sub ~= "" then
-		local sLbl = Instance.new("TextLabel", noti)
-		sLbl.BackgroundTransparency = 1; sLbl.Font = Enum.Font.Gotham; sLbl.TextSize = 13
-		sLbl.TextColor3 = Color3.fromRGB(200, 200, 200); sLbl.TextXAlignment = Enum.TextXAlignment.Left
-		sLbl.TextWrapped = true; sLbl.Text = sub; sLbl.Position = UDim2.new(0, 0, 0, 18)
-		sLbl.Size = UDim2.new(1, 0, 0, 0); sLbl.AutomaticSize = Enum.AutomaticSize.Y
-	end
+	local sLabel = Instance.new("TextLabel", card)
+	sLabel.BackgroundTransparency = 1
+	sLabel.Position = UDim2.new(0, 0, 0, 20)
+	sLabel.Size = UDim2.new(1, 0, 0, 0)
+	sLabel.AutomaticSize = Enum.AutomaticSize.Y
+	sLabel.TextSize = 11
+	sLabel.TextColor3 = palette.NotiSubtitle
+	sLabel.TextXAlignment = Enum.TextXAlignment.Left
+	sLabel.TextWrapped = true
+	sLabel.FontFace = isClassicStyle and Font.fromEnum(Enum.Font.SourceSans) or Font.new("rbxassetid://12187365364", Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+	sLabel.Text = subtitle
+	sLabel.ZIndex = 98002
 
 	task.delay(duration, function()
-		if noti and noti.Parent then noti:Destroy() end
+		if card and card.Parent then
+			TweenService:Create(card, TweenInfo.new(0.25), {BackgroundTransparency = 1}):Play()
+			cStroke.Transparency = 1
+			tLabel.TextTransparency = 1
+			sLabel.TextTransparency = 1
+			task.delay(0.26, function() card:Destroy() end)
+		end
 	end)
 end
 
-function Library:GetNonUser() return NonUserGui end
-function Library:GetCustomOpenUI() return CustomOpenGui end
+--------------------------------------------------------------------------------
+-- HÀM KHỞI TẠO CỬA SỔ THEO CHUẨN BUILDER CALLBACK (CREATE WINDOW)
+--------------------------------------------------------------------------------
+function Library:CreateWindow(config, builderCallback)
+	local route = THEME_ROUTING[Library.CurrentTheme] or THEME_ROUTING["Dark"]
+	local themeModule = Library.GetModuleForTheme(Library.CurrentTheme)
 
-Library:EnsureDefaultThemeLoaded()
+	if not themeModule then
+		error("[Library] Không thể khởi tạo giao diện với Theme: " .. tostring(Library.CurrentTheme))
+		return nil
+	end
+
+	if themeModule.Init then
+		themeModule.Init(Library)
+	end
+
+	local windowRecord = themeModule.CreateWindow(Library, config, route.SubTheme)
+	Library.RegisterActiveWindow(windowRecord)
+
+	local reg = {
+		Config = config,
+		BuilderCallback = builderCallback,
+		CurrentRecord = windowRecord
+	}
+	table.insert(Library.RegisteredWindows, reg)
+
+	if builderCallback then
+		builderCallback(windowRecord.API:GetContainer(), windowRecord.API)
+	end
+
+	Library.BringToFront(windowRecord.Frame, windowRecord)
+	return windowRecord.API
+end
+
+--------------------------------------------------------------------------------
+-- PHÍM TẮT TOÀN CỤC: TOGGLE DESKTOP (CTRL+D) & SWITCHER (CTRL+TAB)
+--------------------------------------------------------------------------------
+local isDesktopHidden = false
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+	if not gameProcessed then
+		-- Toggle Desktop (Ctrl + D)
+		if input.KeyCode == Enum.KeyCode.D and (UserInputService:IsKeyDown(Enum.KeyCode.LeftControl) or UserInputService:IsKeyDown(Enum.KeyCode.RightControl)) then
+			isDesktopHidden = not isDesktopHidden
+			for _, win in ipairs(Library.ActiveWindows) do
+				if isDesktopHidden then
+					if win.Minimize then win.Minimize() end
+				else
+					if win.Restore then win.Restore() end
+				end
+			end
+		end
+	end
+end)
+
 return Library
