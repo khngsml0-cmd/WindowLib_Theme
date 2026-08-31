@@ -1,0 +1,3025 @@
+local TweenService = game:GetService("TweenService")
+local UserInputService = game:GetService("UserInputService")
+local GuiService = game:GetService("GuiService")
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local TextService = game:GetService("TextService")
+
+local LocalPlayer = Players.LocalPlayer
+
+--------------------------------------------------------------------------------
+-- BẢNG MÀU THEME (THEME PALETTES)
+--------------------------------------------------------------------------------
+local Themes = {
+	Dark = {
+		Type = "Modern",
+		MainBackground = Color3.fromRGB(30, 30, 30),
+		MainStroke = Color3.fromRGB(45, 45, 45),
+		TopBarBackground = Color3.fromRGB(20, 20, 20),
+		TopBarLine = Color3.fromRGB(50, 50, 50),
+		TitleTextColor = Color3.fromRGB(240, 240, 240),
+		TopBarNavDefault = Color3.fromRGB(20, 20, 20),
+		TopBarNavHover = Color3.fromRGB(45, 45, 45),
+		TopBarNavClick = Color3.fromRGB(65, 65, 65),
+		TopBarIconColor = Color3.fromRGB(240, 240, 240),
+
+		ContextMenuBackground = Color3.fromRGB(35, 35, 35),
+		ContextMenuStroke = Color3.fromRGB(60, 60, 60),
+		ContextItemDefault = Color3.fromRGB(35, 35, 35),
+		ContextItemHover = Color3.fromRGB(40, 90, 150),
+		ContextItemText = Color3.fromRGB(240, 240, 240),
+		ContextItemTextDisabled = Color3.fromRGB(140, 140, 140),
+		ContextItemSeparator = Color3.fromRGB(70, 70, 70),
+		ContextCheckBoxBg = Color3.fromRGB(25, 25, 25),
+		ContextCheckMark = Color3.fromRGB(45, 120, 200),
+		ContextArrow = Color3.fromRGB(180, 180, 180),
+
+		NotiBackground = Color3.fromRGB(25, 25, 25),
+		NotiStroke = Color3.fromRGB(55, 55, 55),
+		NotiTitle = Color3.fromRGB(255, 255, 255),
+		NotiSubtitle = Color3.fromRGB(200, 200, 200),
+		NotiCloseIcon = Color3.fromRGB(220, 220, 220),
+
+		SwitcherBackground = Color3.fromRGB(25, 25, 25),
+		SwitcherCardBg = Color3.fromRGB(35, 35, 35),
+		SwitcherCardSelected = Color3.fromRGB(50, 50, 50),
+	},
+	Light = {
+		Type = "Modern",
+		MainBackground = Color3.fromRGB(255, 255, 255),
+		MainStroke = Color3.fromRGB(220, 220, 220),
+		TopBarBackground = Color3.fromRGB(245, 245, 245),
+		TopBarLine = Color3.fromRGB(225, 225, 225),
+		TitleTextColor = Color3.fromRGB(30, 30, 30),
+		TopBarNavDefault = Color3.fromRGB(245, 245, 245),
+		TopBarNavHover = Color3.fromRGB(225, 225, 225),
+		TopBarNavClick = Color3.fromRGB(205, 205, 205),
+		TopBarIconColor = Color3.fromRGB(40, 40, 40),
+
+		ContextMenuBackground = Color3.fromRGB(255, 255, 255),
+		ContextMenuStroke = Color3.fromRGB(215, 215, 215),
+		ContextItemDefault = Color3.fromRGB(255, 255, 255),
+		ContextItemHover = Color3.fromRGB(0, 120, 215),
+		ContextItemText = Color3.fromRGB(30, 30, 30),
+		ContextItemTextDisabled = Color3.fromRGB(150, 150, 150),
+		ContextItemSeparator = Color3.fromRGB(225, 225, 225),
+		ContextCheckBoxBg = Color3.fromRGB(230, 230, 230),
+		ContextCheckMark = Color3.fromRGB(0, 120, 215),
+		ContextArrow = Color3.fromRGB(100, 100, 100),
+
+		NotiBackground = Color3.fromRGB(255, 255, 255),
+		NotiStroke = Color3.fromRGB(215, 215, 215),
+		NotiTitle = Color3.fromRGB(20, 20, 20),
+		NotiSubtitle = Color3.fromRGB(90, 90, 90),
+		NotiCloseIcon = Color3.fromRGB(60, 60, 60),
+
+		SwitcherBackground = Color3.fromRGB(245, 245, 245),
+		SwitcherCardBg = Color3.fromRGB(255, 255, 255),
+		SwitcherCardSelected = Color3.fromRGB(230, 230, 230),
+	},
+	Classic = {
+		Type = "Classic",
+		MainBackground = Color3.fromRGB(255, 255, 255),
+		MainStroke = Color3.fromRGB(107, 107, 107),
+		TopBarBackground = Color3.fromRGB(51, 151, 251),
+		TopBarLine = Color3.fromRGB(255, 255, 255),
+		TitleTextColor = Color3.fromRGB(0, 0, 0),
+		TopBarNavDefault = Color3.fromRGB(240, 240, 240),
+		TopBarNavHover = Color3.fromRGB(248, 248, 248),
+		TopBarNavClick = Color3.fromRGB(225, 225, 225),
+		TopBarIconColor = Color3.fromRGB(0, 0, 0),
+
+		ContextMenuBackground = Color3.fromRGB(255, 255, 255),
+		ContextMenuStroke = Color3.fromRGB(107, 107, 107),
+		ContextItemDefault = Color3.fromRGB(255, 255, 255),
+		ContextItemHover = Color3.fromRGB(225, 225, 225),
+		ContextItemText = Color3.fromRGB(0, 0, 0),
+		ContextItemTextDisabled = Color3.fromRGB(101, 101, 101),
+		ContextItemSeparator = Color3.fromRGB(171, 171, 171),
+		ContextCheckBoxBg = Color3.fromRGB(255, 255, 255),
+		ContextCheckMark = Color3.fromRGB(86, 171, 255),
+		ContextArrow = Color3.fromRGB(0, 0, 0),
+
+		NotiBackground = Color3.fromRGB(255, 255, 255),
+		NotiStroke = Color3.fromRGB(107, 107, 107),
+		NotiTitle = Color3.fromRGB(0, 0, 0),
+		NotiSubtitle = Color3.fromRGB(80, 80, 80),
+		NotiCloseIcon = Color3.fromRGB(50, 50, 50),
+
+		SwitcherBackground = Color3.fromRGB(255, 255, 255),
+		SwitcherCardBg = Color3.fromRGB(255, 255, 255),
+		SwitcherCardSelected = Color3.fromRGB(0, 171, 255),
+	}
+}
+
+local currentThemeName = "Dark"
+local currentTheme = Themes.Dark
+local activeWindowsList = {}
+local minimizedWindowsList = {}
+local mruWindowsList = {}
+local desktopMinimizedStack = {}
+local isDesktopMinimizedState = false
+local currentlyFocusedWindow = nil
+
+local isGlobalOutlineDrag = false
+
+local BASE_DISPLAY_ORDER = 100000
+local currentTopWindowZIndex = 10
+
+local cascadeState = {
+	startX = 50, startY = 50, currentX = 50, currentY = 50,
+	stepX = 30, stepY = 30, columnStartX = 50, columnStepX = 180
+}
+
+--------------------------------------------------------------------------------
+-- AN TOÀN ROOT & BẢO VỆ PHÂN CẤP NONUSER
+--------------------------------------------------------------------------------
+local function getTargetGuiParent()
+	if not RunService:IsStudio() then
+		if gethui then
+			local success, hui = pcall(gethui)
+			if success and hui then return hui end
+		end
+		local success, coreGui = pcall(function() return game:GetService("CoreGui") end)
+		if success and coreGui then return coreGui end
+	end
+	return LocalPlayer:WaitForChild("PlayerGui")
+end
+
+local RootParent = getTargetGuiParent()
+
+local SystemGui = Instance.new("ScreenGui")
+SystemGui.Name = "SYSTEM"
+SystemGui.IgnoreGuiInset = true
+SystemGui.ResetOnSpawn = false
+SystemGui.DisplayOrder = BASE_DISPLAY_ORDER
+SystemGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+SystemGui.Parent = RootParent
+
+local NonUserGui = Instance.new("ScreenGui")
+NonUserGui.Name = "NonUser"
+NonUserGui.IgnoreGuiInset = true
+NonUserGui.DisplayOrder = BASE_DISPLAY_ORDER + 500
+NonUserGui.ResetOnSpawn = false
+NonUserGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+NonUserGui.Parent = SystemGui
+
+local CustomOpenGui = Instance.new("ScreenGui")
+CustomOpenGui.Name = "CustomOpenUI"
+CustomOpenGui.IgnoreGuiInset = true
+CustomOpenGui.DisplayOrder = BASE_DISPLAY_ORDER + 600
+CustomOpenGui.ResetOnSpawn = false
+CustomOpenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+CustomOpenGui.Parent = SystemGui
+
+local ContextMenuGui = Instance.new("ScreenGui")
+ContextMenuGui.Name = "SYSTEM_DefaultContextMenu"
+ContextMenuGui.IgnoreGuiInset = true
+ContextMenuGui.DisplayOrder = BASE_DISPLAY_ORDER + 999900
+ContextMenuGui.ResetOnSpawn = false
+ContextMenuGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+ContextMenuGui.Parent = SystemGui
+
+local NotificationGui = Instance.new("ScreenGui")
+NotificationGui.Name = "SYSTEM_Notification"
+NotificationGui.IgnoreGuiInset = true
+NotificationGui.DisplayOrder = BASE_DISPLAY_ORDER + 999999
+NotificationGui.ResetOnSpawn = false
+NotificationGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+NotificationGui.Parent = SystemGui
+
+local NotiListLayout = Instance.new("UIListLayout", NotificationGui)
+NotiListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Right
+NotiListLayout.VerticalAlignment = Enum.VerticalAlignment.Bottom
+NotiListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+NotiListLayout.Padding = UDim.new(0, 6)
+
+local NotiPadding = Instance.new("UIPadding", NotificationGui)
+NotiPadding.PaddingTop = UDim.new(0, 10); NotiPadding.PaddingRight = UDim.new(0, 10)
+NotiPadding.PaddingLeft = UDim.new(0, 10); NotiPadding.PaddingBottom = UDim.new(0, 10)
+
+--------------------------------------------------------------------------------
+-- FAKE CURSOR SYSTEM (CLASSIC MODE)
+--------------------------------------------------------------------------------
+local ICON_NORMAL = "rbxassetid://130313192476512"
+local ICON_DRAG = "rbxassetid://129297489576933"
+local ASSET_X_NORMAL = "rbxassetid://124970503845830"
+local ASSET_X_PRESSED = "rbxassetid://81528672228578"
+
+local CursorGui = Instance.new("ScreenGui")
+CursorGui.Name = "FakeCursorGui"
+CursorGui.DisplayOrder = 2147483647
+CursorGui.ResetOnSpawn = false
+CursorGui.Parent = RootParent
+
+local CursorImg = Instance.new("ImageLabel")
+CursorImg.Size = UDim2.new(0, 64, 0, 64)
+CursorImg.AnchorPoint = Vector2.new(0.5, 0.5)
+CursorImg.BackgroundTransparency = 1
+CursorImg.Image = ICON_NORMAL
+CursorImg.Visible = false
+CursorImg.ZIndex = 999999
+CursorImg.Parent = CursorGui
+
+local isHoveringWindow = false
+local lockedIcon = nil
+local hoverIcon = nil
+
+local function SetWindowHover(state) isHoveringWindow = state end
+local function SetResizeHoverIcon(iconId) hoverIcon = iconId end
+local function LockCursorIcon(iconId) lockedIcon = iconId end
+
+UserInputService.InputEnded:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+		lockedIcon = nil
+	end
+end)
+
+RunService.RenderStepped:Connect(function()
+	if currentThemeName == "Classic" then
+		local activeImage = lockedIcon or hoverIcon or (isHoveringWindow and ICON_NORMAL or nil)
+		if activeImage then
+			UserInputService.MouseIconEnabled = false
+			CursorImg.Visible = true
+			CursorImg.Image = activeImage
+			local mousePos = UserInputService:GetMouseLocation()
+			local inset = GuiService:GetGuiInset()
+			CursorImg.Position = UDim2.new(0, mousePos.X, 0, mousePos.Y - inset.Y)
+		else
+			UserInputService.MouseIconEnabled = true
+			CursorImg.Visible = false
+		end
+	else
+		if CursorImg.Visible then
+			CursorImg.Visible = false
+			UserInputService.MouseIconEnabled = true
+		end
+	end
+end)
+
+--------------------------------------------------------------------------------
+-- TWEENS & HOVER
+--------------------------------------------------------------------------------
+local TWEEN_INFO_SMOOTH = TweenInfo.new(0.25, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut)
+local TWEEN_INFO_OPEN = TweenInfo.new(0.18, Enum.EasingStyle.Cubic, Enum.EasingDirection.Out)
+local TWEEN_INFO_CLOSE = TweenInfo.new(0.15, Enum.EasingStyle.Cubic, Enum.EasingDirection.In)
+local TWEEN_INFO_THEME = TweenInfo.new(0.25, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut)
+
+local Library = {}
+Library.__index = Library
+Library.OnThemeChanged = Instance.new("BindableEvent")
+
+local function applyHoverEffect(button, defaultColor, hoverColor, clickColor)
+	local tweenInfo = TweenInfo.new(0.15, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut)
+	button.BackgroundColor3 = defaultColor
+
+	button.MouseEnter:Connect(function()
+		if button.Active then
+			TweenService:Create(button, tweenInfo, {BackgroundColor3 = hoverColor}):Play()
+		end
+	end)
+	button.MouseLeave:Connect(function()
+		if button.Active then
+			TweenService:Create(button, tweenInfo, {BackgroundColor3 = defaultColor}):Play()
+		end
+	end)
+
+	if clickColor then
+		button.MouseButton1Down:Connect(function()
+			if button.Active then
+				TweenService:Create(button, tweenInfo, {BackgroundColor3 = clickColor}):Play()
+			end
+		end)
+		button.MouseButton1Up:Connect(function()
+			if button.Active then
+				TweenService:Create(button, tweenInfo, {BackgroundColor3 = hoverColor}):Play()
+			end
+		end)
+	end
+
+	return {
+		UpdateColors = function(newDefault, newHover, newClick)
+			defaultColor = newDefault
+			hoverColor = newHover
+			clickColor = newClick or clickColor
+			TweenService:Create(button, tweenInfo, {BackgroundColor3 = defaultColor}):Play()
+		end
+	}
+end
+
+--------------------------------------------------------------------------------
+-- HELPER: 3D BORDERS (TÁCH RIÊNG CỬA SỔ & CONTEXT MENU)
+--------------------------------------------------------------------------------
+-- 1. Viền 3D ôm khít dành cho CỬA SỔ (WINDOW)
+local function applyWindow3DBorder(parentFrame)
+	local border = Instance.new("Frame", parentFrame)
+	border.Name = "Border"
+	border.Size = UDim2.new(1, 0, 1, 0)
+	border.Position = UDim2.new(0, 0, 0, 0)
+	border.BackgroundTransparency = 1
+	border.BorderSizePixel = 0
+	border.ZIndex = parentFrame.ZIndex
+
+	local function addL(sz, ps, col, name)
+		local l = Instance.new("Frame", border)
+		l.BorderSizePixel = 0; l.Size = sz; l.Position = ps; l.BackgroundColor3 = col
+		l.Name = name or "Line"; l.ZIndex = border.ZIndex
+	end
+
+	addL(UDim2.new(1, 0, 0, 1), UDim2.new(0, 0, 1, -1), Color3.fromRGB(107, 107, 107))
+	addL(UDim2.new(0, 1, 1, 0), UDim2.new(1, -1, 0, 0), Color3.fromRGB(107, 107, 107))
+	addL(UDim2.new(1, -2, 0, 1), UDim2.new(0, 1, 1, -2), Color3.fromRGB(167, 167, 167))
+	addL(UDim2.new(0, 1, 1, -2), UDim2.new(1, -2, 0, 1), Color3.fromRGB(167, 167, 167))
+	addL(UDim2.new(1, -1, 0, 1), UDim2.new(0, 0, 0, 0), Color3.fromRGB(228, 228, 228))
+	addL(UDim2.new(0, 1, 1, -1), UDim2.new(0, 0, 0, 0), Color3.fromRGB(228, 228, 228))
+
+	addL(UDim2.new(0, 3, 1, -3), UDim2.new(0, 1, 0, 1), Color3.fromRGB(255, 255, 255), "White")
+	addL(UDim2.new(0, 2, 1, -3), UDim2.new(1, -4, 0, 1), Color3.fromRGB(255, 255, 255), "White")
+	addL(UDim2.new(1, -3, 0, 2), UDim2.new(0, 1, 1, -4), Color3.fromRGB(255, 255, 255), "White")
+	addL(UDim2.new(1, -3, 0, 3), UDim2.new(0, 1, 0, 1), Color3.fromRGB(255, 255, 255), "White")
+
+	return border
+end
+
+-- 2. Viền 3D tràn ra ngoài dành cho CONTEXT MENU
+local function applyContextMenu3DBorder(parentFrame)
+	local border = Instance.new("Frame", parentFrame)
+	border.Name = "Border"
+	border.BorderSizePixel = 0
+	border.BackgroundTransparency = 1
+	border.AnchorPoint = Vector2.new(0.5, 0.5)
+	border.Size = UDim2.new(1, 5, 1, 5)
+	border.Position = UDim2.new(0.5, 0, 0.5, 0)
+	border.ZIndex = parentFrame.ZIndex
+
+	local function addL(sz, ps, col, name)
+		local l = Instance.new("Frame", border)
+		l.BorderSizePixel = 0; l.Size = sz; l.Position = ps; l.BackgroundColor3 = col
+		l.Name = name or "Line"; l.ZIndex = border.ZIndex
+	end
+
+	addL(UDim2.new(1, 0, 0, 1), UDim2.new(0, 0, 1, -1), Color3.fromRGB(107, 107, 107))
+	addL(UDim2.new(0, 1, 1, 0), UDim2.new(1, -1, 0, 0), Color3.fromRGB(107, 107, 107))
+	addL(UDim2.new(1, -2, 0, 1), UDim2.new(0, 1, 1, -2), Color3.fromRGB(167, 167, 167))
+	addL(UDim2.new(0, 1, 1, -2), UDim2.new(1, -2, 0, 1), Color3.fromRGB(167, 167, 167))
+	addL(UDim2.new(1, -1, 0, 1), UDim2.new(0, 0, 0, 0), Color3.fromRGB(228, 228, 228))
+	addL(UDim2.new(0, 1, 1, -1), UDim2.new(0, 0, 0, 0), Color3.fromRGB(228, 228, 228))
+
+	addL(UDim2.new(0, 3, 1, -3), UDim2.new(0, 1, 0, 1), Color3.fromRGB(255, 255, 255), "White")
+	addL(UDim2.new(0, 2, 1, -3), UDim2.new(1, -4, 0, 1), Color3.fromRGB(255, 255, 255), "White")
+	addL(UDim2.new(1, -3, 0, 2), UDim2.new(0, 1, 1, -4), Color3.fromRGB(255, 255, 255), "White")
+	addL(UDim2.new(1, -3, 0, 3), UDim2.new(0, 1, 0, 1), Color3.fromRGB(255, 255, 255), "White")
+
+	return border
+end
+
+-- Tương thích ngược tránh lỗi nil khi các thành phần khác gọi tên cũ
+local applyClassic3DBorder = applyWindow3DBorder
+
+local function applyTaskbar3DBorder(parentFrame)
+	local border = Instance.new("Frame", parentFrame)
+	border.Name = "Border"
+	border.BorderSizePixel = 0
+	border.BackgroundTransparency = 1
+	border.AnchorPoint = Vector2.new(0.5, 0.5)
+	border.Size = UDim2.new(1, 5, 1, 5)
+	border.Position = UDim2.new(0.5, 0, 0.5, 0)
+	border.ZIndex = parentFrame.ZIndex
+
+	local function addL(sz, ps, col, name)
+		local l = Instance.new("Frame", border)
+		l.BorderSizePixel = 0; l.Size = sz; l.Position = ps; l.BackgroundColor3 = col
+		l.Name = name or "Line"; l.ZIndex = border.ZIndex
+	end
+
+	addL(UDim2.new(1, 0, 0, 1), UDim2.new(0, 0, 1, -1), Color3.fromRGB(107, 107, 107))
+	addL(UDim2.new(0, 1, 1, 0), UDim2.new(1, -1, 0, 0), Color3.fromRGB(107, 107, 107))
+	addL(UDim2.new(1, -2, 0, 1), UDim2.new(0, 1, 1, -2), Color3.fromRGB(167, 167, 167))
+	addL(UDim2.new(0, 1, 1, -2), UDim2.new(1, -2, 0, 1), Color3.fromRGB(167, 167, 167))
+	addL(UDim2.new(1, -1, 0, 1), UDim2.new(0, 0, 0, 0), Color3.fromRGB(228, 228, 228))
+	addL(UDim2.new(0, 1, 1, -1), UDim2.new(0, 0, 0, 0), Color3.fromRGB(228, 228, 228))
+
+	addL(UDim2.new(0, 3, 1, -3), UDim2.new(0, 1, 0, 1), Color3.fromRGB(255, 255, 255), "White")
+	addL(UDim2.new(0, 2, 1, -3), UDim2.new(1, -4, 0, 1), Color3.fromRGB(255, 255, 255), "White")
+	addL(UDim2.new(1, -3, 0, 2), UDim2.new(0, 1, 1, -4), Color3.fromRGB(255, 255, 255), "White")
+	addL(UDim2.new(1, -3, 0, 3), UDim2.new(0, 1, 0, 1), Color3.fromRGB(255, 255, 255), "White")
+
+	return border
+end
+
+local function createPixelArrow(parent, color, rotation)
+	local container = Instance.new("Frame", parent)
+	container.Name = "SymmetricArrow"
+	container.Size = UDim2.new(0, 6, 0, 11)
+	container.Position = UDim2.new(0.5, -3, 0.5, -5)
+	container.Rotation = rotation or 0
+	container.BackgroundTransparency = 1
+
+	local bars = {
+		{w = 1, h = 11, x = 0, y = -5},
+		{w = 1, h = 9,  x = 1, y = -4},
+		{w = 1, h = 7,  x = 2, y = -3},
+		{w = 1, h = 5,  x = 3, y = -2},
+		{w = 1, h = 3,  x = 4, y = -1},
+		{w = 1, h = 1,  x = 5, y = 0},
+	}
+
+	for idx, b in ipairs(bars) do
+		local bar = Instance.new("Frame", container)
+		bar.Name = "Bar_" .. idx
+		bar.BorderSizePixel = 0
+		bar.BackgroundColor3 = color or Color3.fromRGB(0, 0, 0)
+		bar.Size = UDim2.new(0, b.w, 0, b.h)
+		bar.Position = UDim2.new(0, b.x, 0.5, b.y)
+	end
+	return container
+end
+
+--------------------------------------------------------------------------------
+-- OUTLINE DRAG & AERO SNAP
+--------------------------------------------------------------------------------
+local DragOutlineFrame = Instance.new("Frame", SystemGui)
+DragOutlineFrame.Name = "SYSTEM_DragOutlineFrame"
+DragOutlineFrame.BorderSizePixel = 0
+DragOutlineFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+DragOutlineFrame.BackgroundTransparency = 0.85
+DragOutlineFrame.Visible = false
+DragOutlineFrame.ZIndex = 99998
+Instance.new("UICorner", DragOutlineFrame).CornerRadius = UDim.new(0, 6)
+
+local DragOutlineStroke = Instance.new("UIStroke", DragOutlineFrame)
+DragOutlineStroke.Color = Color3.fromRGB(50, 50, 50)
+DragOutlineStroke.Thickness = 2
+DragOutlineStroke.LineJoinMode = Enum.LineJoinMode.Miter
+
+local SnapGhostFrame = Instance.new("Frame", SystemGui)
+SnapGhostFrame.Name = "SnapGhostFrame"
+SnapGhostFrame.BorderSizePixel = 0
+SnapGhostFrame.BackgroundColor3 = Color3.fromRGB(0, 120, 215)
+SnapGhostFrame.BackgroundTransparency = 1
+SnapGhostFrame.Visible = false
+SnapGhostFrame.ZIndex = 99999
+Instance.new("UICorner", SnapGhostFrame).CornerRadius = UDim.new(0, 6)
+
+local function createDottedEdge(parent, size, pos, isVertical)
+	local edge = Instance.new("ImageLabel", parent)
+	edge.Name = isVertical and "DottedV" or "DottedH"
+	edge.BackgroundTransparency = 1
+	edge.Size = size; edge.Position = pos
+	edge.Image = "rbxassetid://6071575925"
+	edge.ImageColor3 = Color3.fromRGB(0, 170, 255)
+	edge.ImageTransparency = 1
+	edge.ScaleType = Enum.ScaleType.Tile
+	edge.TileSize = isVertical and UDim2.new(0, 2, 0, 8) or UDim2.new(0, 8, 0, 2)
+	return edge
+end
+
+local snapTop = createDottedEdge(SnapGhostFrame, UDim2.new(1, 0, 0, 2), UDim2.new(0, 0, 0, 0), false)
+local snapBottom = createDottedEdge(SnapGhostFrame, UDim2.new(1, 0, 0, 2), UDim2.new(0, 0, 1, -2), false)
+local snapLeft = createDottedEdge(SnapGhostFrame, UDim2.new(0, 2, 1, 0), UDim2.new(0, 0, 0, 0), true)
+local snapRight = createDottedEdge(SnapGhostFrame, UDim2.new(0, 2, 1, 0), UDim2.new(1, -2, 0, 0), true)
+
+local function showSnapGhost(pos, size)
+	SnapGhostFrame.Visible = true
+	TweenService:Create(SnapGhostFrame, TweenInfo.new(0.15), {Position = pos, Size = size, BackgroundTransparency = 0.88}):Play()
+	for _, edge in ipairs({snapTop, snapBottom, snapLeft, snapRight}) do
+		TweenService:Create(edge, TweenInfo.new(0.15), {ImageTransparency = 0.1}):Play()
+	end
+end
+
+local function hideSnapGhost()
+	local t = TweenService:Create(SnapGhostFrame, TweenInfo.new(0.15), {BackgroundTransparency = 1})
+	for _, edge in ipairs({snapTop, snapBottom, snapLeft, snapRight}) do
+		TweenService:Create(edge, TweenInfo.new(0.15), {ImageTransparency = 1}):Play()
+	end
+	t:Play()
+	t.Completed:Connect(function()
+		if SnapGhostFrame.BackgroundTransparency >= 0.99 then SnapGhostFrame.Visible = false end
+	end)
+end
+
+--------------------------------------------------------------------------------
+-- FORWARD DECLARATION FOR CONTEXT MENU
+--------------------------------------------------------------------------------
+local renderContextMenuFrame
+
+--------------------------------------------------------------------------------
+-- CLASSIC TASKBAR SYSTEM
+--------------------------------------------------------------------------------
+local isTaskbarVisible = false
+local isTaskbarAnimating = false
+
+local ClassicTaskbar = Instance.new("ImageButton", NonUserGui)
+ClassicTaskbar.Name = "Taskbar"
+ClassicTaskbar.BorderSizePixel = 0
+ClassicTaskbar.AutoButtonColor = false
+ClassicTaskbar.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+ClassicTaskbar.AnchorPoint = Vector2.new(0.5, 0)
+ClassicTaskbar.Size = UDim2.new(1, -20, 0, 25)
+ClassicTaskbar.Position = UDim2.new(0.5, 0, 1, 2)
+ClassicTaskbar.Visible = false
+ClassicTaskbar.ZIndex = 8000
+applyTaskbar3DBorder(ClassicTaskbar)
+
+local TaskbarMain = Instance.new("Frame", ClassicTaskbar)
+TaskbarMain.Name = "main"
+TaskbarMain.BorderSizePixel = 0
+TaskbarMain.BackgroundTransparency = 1
+TaskbarMain.Size = UDim2.new(1, -45, 1, 0)
+TaskbarMain.Position = UDim2.new(0, 4, 0, 0)
+TaskbarMain.ClipsDescendants = true
+TaskbarMain.ZIndex = 8001
+
+local TaskbarAppHolder = Instance.new("Frame", TaskbarMain)
+TaskbarAppHolder.Name = "AppHolder"
+TaskbarAppHolder.BackgroundTransparency = 1
+TaskbarAppHolder.Size = UDim2.new(0, 0, 1, 0)
+TaskbarAppHolder.Position = UDim2.new(0, 0, 0, 0)
+TaskbarAppHolder.AutomaticSize = Enum.AutomaticSize.X
+TaskbarAppHolder.ZIndex = 8001
+
+local TaskbarMainLayout = Instance.new("UIListLayout", TaskbarAppHolder)
+TaskbarMainLayout.Padding = UDim.new(0, 5)
+TaskbarMainLayout.SortOrder = Enum.SortOrder.LayoutOrder
+TaskbarMainLayout.FillDirection = Enum.FillDirection.Horizontal
+TaskbarMainLayout.VerticalAlignment = Enum.VerticalAlignment.Center
+
+local TaskbarControl = Instance.new("Frame", ClassicTaskbar)
+TaskbarControl.Name = "Control"
+TaskbarControl.BorderSizePixel = 0
+TaskbarControl.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+TaskbarControl.AnchorPoint = Vector2.new(1, 0)
+TaskbarControl.Size = UDim2.new(0, 100, 1, 0)
+TaskbarControl.Position = UDim2.new(1, 0, 0, 0)
+TaskbarControl.ZIndex = 8002
+
+local ControlApp = Instance.new("Frame", TaskbarControl)
+ControlApp.Name = "ControlApp"
+ControlApp.BorderSizePixel = 0
+ControlApp.BackgroundTransparency = 1
+ControlApp.Size = UDim2.new(0, 50, 1, 0)
+ControlApp.Visible = false
+ControlApp.ZIndex = 8003
+
+local ControlAppLayout = Instance.new("UIListLayout", ControlApp)
+ControlAppLayout.Padding = UDim.new(0, 2)
+ControlAppLayout.SortOrder = Enum.SortOrder.LayoutOrder
+ControlAppLayout.FillDirection = Enum.FillDirection.Horizontal
+
+local function createSunkenButton(parent, size, pos, name, arrowRotation)
+	local btn = Instance.new("ImageButton", parent)
+	btn.Name = name
+	btn.Size = size
+	btn.Position = pos or UDim2.new(0, 0, 0, 0)
+	btn.BorderSizePixel = 0
+	btn.AutoButtonColor = false
+	btn.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+	btn.ZIndex = parent.ZIndex + 1
+
+	local effect = Instance.new("Frame", btn)
+	effect.Name = "3dEffect"
+	effect.Size = UDim2.new(1, 0, 1, 0)
+	effect.BackgroundTransparency = 1
+	effect.ZIndex = btn.ZIndex
+
+	local fRight = Instance.new("Frame", effect)
+	fRight.BorderSizePixel = 0; fRight.BackgroundColor3 = Color3.fromRGB(119, 119, 119)
+	fRight.AnchorPoint = Vector2.new(1, 0); fRight.Size = UDim2.new(0, 2, 1, 0); fRight.Position = UDim2.new(1, 0, 0, 0)
+	fRight.ZIndex = effect.ZIndex
+
+	local fBottom = Instance.new("Frame", effect)
+	fBottom.BorderSizePixel = 0; fBottom.BackgroundColor3 = Color3.fromRGB(119, 119, 119)
+	fBottom.AnchorPoint = Vector2.new(0, 1); fBottom.Size = UDim2.new(1, 0, 0, 2); fBottom.Position = UDim2.new(0, 0, 1, 0)
+	fBottom.ZIndex = effect.ZIndex
+
+	if arrowRotation ~= nil then
+		createPixelArrow(btn, Color3.fromRGB(0, 0, 0), arrowRotation)
+	end
+
+	local isDown = false
+	local function setSunken(down)
+		if down then
+			fRight.AnchorPoint = Vector2.new(0, 0); fRight.Position = UDim2.new(0, 0, 0, 0)
+			fBottom.AnchorPoint = Vector2.new(0, 0); fBottom.Position = UDim2.new(0, 0, 0, 0)
+			btn.BackgroundColor3 = Color3.fromRGB(225, 225, 225)
+		else
+			fRight.AnchorPoint = Vector2.new(1, 0); fRight.Position = UDim2.new(1, 0, 0, 0)
+			fBottom.AnchorPoint = Vector2.new(0, 1); fBottom.Position = UDim2.new(0, 0, 1, 0)
+			btn.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+		end
+	end
+
+	btn.MouseButton1Down:Connect(function() isDown = true; setSunken(true) end)
+	UserInputService.InputEnded:Connect(function(inp)
+		if isDown and (inp.UserInputType == Enum.UserInputType.MouseButton1 or inp.UserInputType == Enum.UserInputType.Touch) then
+			isDown = false; setSunken(false)
+		end
+	end)
+
+	return btn
+end
+
+local BtnScrollLeft = createSunkenButton(ControlApp, UDim2.new(0, 25, 1, 0), nil, "Left", 180)
+local BtnScrollRight = createSunkenButton(ControlApp, UDim2.new(0, 25, 1, 0), nil, "Right", 0)
+
+local TaskbarLine = Instance.new("Frame", TaskbarControl)
+TaskbarLine.Name = "Line"
+TaskbarLine.BorderSizePixel = 0
+TaskbarLine.BackgroundColor3 = Color3.fromRGB(166, 166, 166)
+TaskbarLine.Size = UDim2.new(0, 1, 1, 0)
+TaskbarLine.Position = UDim2.new(0, -2, 0, 0)
+TaskbarLine.ZIndex = 8003
+
+local HideTaskBarHolder = Instance.new("Frame", TaskbarControl)
+HideTaskBarHolder.Name = "Hide TaskBar"
+HideTaskBarHolder.BorderSizePixel = 0
+HideTaskBarHolder.BackgroundTransparency = 1
+HideTaskBarHolder.AnchorPoint = Vector2.new(1, 0)
+HideTaskBarHolder.Size = UDim2.new(0, 40, 1, 0)
+HideTaskBarHolder.Position = UDim2.new(1, 0, 0, 0)
+HideTaskBarHolder.ZIndex = 8003
+
+local BtnHideTaskbar = createSunkenButton(HideTaskBarHolder, UDim2.new(1, 0, 1, 0), nil, "Left", 90)
+
+local UnHideTaskbar = Instance.new("ImageButton", ClassicTaskbar)
+UnHideTaskbar.Name = "UnHideTaskbar"
+UnHideTaskbar.BorderSizePixel = 0
+UnHideTaskbar.AutoButtonColor = false
+UnHideTaskbar.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+UnHideTaskbar.AnchorPoint = Vector2.new(1, 1)
+UnHideTaskbar.Size = UDim2.new(0, 50, 0, 20)
+UnHideTaskbar.Position = UDim2.new(1, 0, 0, -5)
+UnHideTaskbar.Visible = true
+UnHideTaskbar.ZIndex = 8010
+applyTaskbar3DBorder(UnHideTaskbar)
+createPixelArrow(UnHideTaskbar, Color3.fromRGB(0, 0, 0), -90)
+
+local function animateTaskbar(show)
+	if isTaskbarAnimating or isTaskbarVisible == show then return end
+	isTaskbarAnimating = true
+
+	local startY = show and 2 or -27
+	local targetY = show and -27 or 2
+	local TOTAL_FRAMES = 5
+	local FRAME_DELAY = 1 / 24
+	local stepDelta = (targetY - startY) / TOTAL_FRAMES
+
+	if show then UnHideTaskbar.Visible = false end
+
+	task.spawn(function()
+		for i = 1, TOTAL_FRAMES do
+			local curY = math.floor(startY + stepDelta * i)
+			ClassicTaskbar.Position = UDim2.new(0.5, 0, 1, curY)
+			task.wait(FRAME_DELAY)
+		end
+		ClassicTaskbar.Position = UDim2.new(0.5, 0, 1, targetY)
+		isTaskbarVisible = show
+		if not show then UnHideTaskbar.Visible = true end
+		isTaskbarAnimating = false
+	end)
+end
+
+BtnHideTaskbar.MouseButton1Click:Connect(function() animateTaskbar(false) end)
+UnHideTaskbar.MouseButton1Click:Connect(function() animateTaskbar(true) end)
+
+local scrollOffset = 0
+BtnScrollLeft.MouseButton1Click:Connect(function()
+	scrollOffset = math.min(0, scrollOffset + 60)
+	TaskbarAppHolder.Position = UDim2.new(0, scrollOffset, 0, 0)
+end)
+BtnScrollRight.MouseButton1Click:Connect(function()
+	local maxScroll = math.min(0, TaskbarMain.AbsoluteSize.X - TaskbarAppHolder.AbsoluteSize.X - 10)
+	scrollOffset = math.max(maxScroll, scrollOffset - 60)
+	TaskbarAppHolder.Position = UDim2.new(0, scrollOffset, 0, 0)
+end)
+
+--------------------------------------------------------------------------------
+-- RENDER APPS TRÊN CLASSIC TASKBAR
+--------------------------------------------------------------------------------
+local function updateClassicTaskbar()
+	-- Nếu không phải Classic HOẶC không có cửa sổ nào đang mở -> Ẩn toàn bộ Taskbar & UnHideTaskbar
+	if currentThemeName ~= "Classic" or #activeWindowsList == 0 then
+		ClassicTaskbar.Visible = false
+		UnHideTaskbar.Visible = false
+		return
+	end
+
+	-- Khi có ít nhất 1 cửa sổ: Hiển thị đúng theo trạng thái Ẩn/Hiện
+	if isTaskbarVisible then
+		ClassicTaskbar.Visible = true
+		UnHideTaskbar.Visible = false
+	else
+		ClassicTaskbar.Visible = true -- Giữ để lộ nút con UnHideTaskbar
+		UnHideTaskbar.Visible = true
+	end
+
+	-- Xóa các tab cũ trước khi vẽ lại
+	for _, child in ipairs(TaskbarAppHolder:GetChildren()) do
+		if not child:IsA("UIListLayout") and not child:IsA("UIPadding") then
+			child:Destroy()
+		end
+	end
+
+	for _, win in ipairs(activeWindowsList) do
+		local isFocused = (currentlyFocusedWindow == win) and not win.IsMinimized()
+
+		local appBtn = Instance.new("ImageButton", TaskbarAppHolder)
+		appBtn.Name = isFocused and "Appselect_Template" or "Appunselect_Template"
+		appBtn.BorderSizePixel = 0
+		appBtn.AutoButtonColor = false
+		appBtn.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+		appBtn.AutomaticSize = Enum.AutomaticSize.X
+		appBtn.Size = UDim2.new(0, 50, 1, 0)
+		appBtn.ZIndex = 8004
+
+		local effect = Instance.new("Frame", appBtn)
+		effect.Name = "3dEffect"
+		effect.BorderSizePixel = 0
+		effect.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+		effect.BackgroundTransparency = 1
+		effect.AutomaticSize = Enum.AutomaticSize.X
+		effect.Size = UDim2.new(0, 50, 1, 0)
+		effect.ZIndex = 8005
+
+		local lineV = Instance.new("Frame", effect)
+		lineV.BorderSizePixel = 0
+		lineV.BackgroundColor3 = Color3.fromRGB(119, 119, 119)
+		lineV.ZIndex = 8006
+
+		local lineH = Instance.new("Frame", effect)
+		lineH.BorderSizePixel = 0
+		lineH.BackgroundColor3 = Color3.fromRGB(119, 119, 119)
+		lineH.Name = "Frame1"
+		lineH.ZIndex = 8006
+
+		local appContainer = Instance.new("Frame", effect)
+		appContainer.Name = "App"
+		appContainer.BorderSizePixel = 0
+		appContainer.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+		appContainer.BackgroundTransparency = 1
+		appContainer.ZIndex = 8006
+
+		local appLayout = Instance.new("UIListLayout", appContainer)
+		appLayout.Padding = UDim.new(0, 2)
+		appLayout.VerticalAlignment = Enum.VerticalAlignment.Center
+		appLayout.SortOrder = Enum.SortOrder.LayoutOrder
+		appLayout.FillDirection = Enum.FillDirection.Horizontal
+
+		local appPadding = Instance.new("UIPadding", appContainer)
+		appPadding.PaddingRight = UDim.new(0, 5)
+		appPadding.PaddingLeft = UDim.new(0, 5)
+
+		local appStroke = Instance.new("UIStroke", appContainer)
+		appStroke.Color = Color3.fromRGB(203, 203, 203)
+
+		local icon = Instance.new("ImageLabel", appContainer)
+		icon.Name = "Iconapp"
+		icon.BorderSizePixel = 0
+		icon.BackgroundTransparency = 1
+		icon.Size = UDim2.new(0, 18, 0, 18)
+		icon.Image = win.GetIcon and win.GetIcon() or "rbxasset://textures/ui/GuiImagePlaceholder.png"
+		icon.ZIndex = 8007
+
+		local title = Instance.new("TextLabel", appContainer)
+		title.Name = "Title"
+		title.BorderSizePixel = 0
+		title.BackgroundTransparency = 1
+		title.Font = Enum.Font.SourceSans
+		title.TextSize = 14
+		title.TextColor3 = Color3.fromRGB(0, 0, 0)
+		title.TextXAlignment = Enum.TextXAlignment.Left
+		title.Text = win.GetTitle and win.GetTitle() or "Window"
+		title.LayoutOrder = 1
+		title.Size = UDim2.new(0, 5, 1, 0)
+		title.AutomaticSize = Enum.AutomaticSize.X
+		title.ZIndex = 8007
+
+		if isFocused then
+			lineV.AnchorPoint = Vector2.new(0, 0); lineV.Position = UDim2.new(0, 0, 0, 0); lineV.Size = UDim2.new(0, 2, 1, 0)
+			lineH.AnchorPoint = Vector2.new(0, 0); lineH.Position = UDim2.new(0, 0, 0, 0); lineH.Size = UDim2.new(1, 0, 0, 2)
+			appContainer.Size = UDim2.new(1, 0, 1, 0)
+		else
+			lineV.AnchorPoint = Vector2.new(1, 0); lineV.Position = UDim2.new(1, 0, 0, 0); lineV.Size = UDim2.new(0, 2, 1, 0)
+			lineH.AnchorPoint = Vector2.new(0, 1); lineH.Position = UDim2.new(0, 0, 1, 0); lineH.Size = UDim2.new(1, 0, 0, 2)
+			appContainer.Size = UDim2.new(1, -2, 1, -2)
+		end
+
+		appBtn.MouseButton1Click:Connect(function()
+			if win.IsMinimized() then
+				win.Restore()
+				win.Focus()
+			elseif currentlyFocusedWindow == win then
+				win.Minimize()
+			else
+				win.Focus()
+			end
+		end)
+
+		appBtn.MouseButton2Click:Connect(function()
+			local mousePos = UserInputService:GetMouseLocation()
+			local items = {}
+
+			if win.TaskbarContextMenu then
+				for _, it in ipairs(win.TaskbarContextMenu) do
+					table.insert(items, it)
+				end
+				table.insert(items, {Type = "Separator"})
+			end
+
+			table.insert(items, {
+				Type = "Button",
+				Text = "Close",
+				Callback = function()
+					win.Close()
+				end
+			})
+
+			renderContextMenuFrame(mousePos, items, 1)
+		end)
+	end
+
+	task.defer(function()
+		local contentW = TaskbarMainLayout.AbsoluteContentSize.X
+		local containerW = TaskbarMain.AbsoluteSize.X
+		if contentW > containerW then
+			ControlApp.Visible = true
+			TaskbarMain.Size = UDim2.new(1, -100, 1, 0)
+		else
+			ControlApp.Visible = false
+			TaskbarMain.Size = UDim2.new(1, -45, 1, 0)
+		end
+	end)
+end
+
+--------------------------------------------------------------------------------
+-- AUTO MINIMIZE TASKBAR GRID (MODERN THEME)
+--------------------------------------------------------------------------------
+local function updateMinimizedGrid()
+	if currentThemeName == "Classic" then
+		updateClassicTaskbar()
+		return
+	end
+
+	local itemW = 180; local itemH = 28; local pad = 6; local marginX = 10; local marginY = 10
+	local groups = {}
+	for _, win in ipairs(minimizedWindowsList) do
+		local p = win.TargetParent or NonUserGui
+		groups[p] = groups[p] or {}
+		table.insert(groups[p], win)
+	end
+
+	for parentObj, winGroup in pairs(groups) do
+		local containerWidth = 1920
+		if parentObj:IsA("GuiObject") and parentObj.AbsoluteSize.X > 0 then
+			containerWidth = parentObj.AbsoluteSize.X
+		elseif workspace.CurrentCamera then
+			containerWidth = workspace.CurrentCamera.ViewportSize.X
+		end
+
+		local maxCols = math.max(1, math.floor((containerWidth - marginX) / (itemW + pad)))
+
+		for idx, win in ipairs(winGroup) do
+			local col = (idx - 1) % maxCols
+			local row = math.floor((idx - 1) / maxCols)
+
+			local targetX = marginX + col * (itemW + pad)
+			local targetYOffset = -(marginY + itemH + (row * (itemH + pad)))
+
+			TweenService:Create(win.Frame, TWEEN_INFO_SMOOTH, {
+				Position = UDim2.new(0, targetX, 1, targetYOffset),
+				Size = UDim2.new(0, itemW, 0, itemH)
+			}):Play()
+		end
+	end
+end
+
+--------------------------------------------------------------------------------
+-- FOCUS MANAGER & CLICK RA NGOÀI MẤT FOCUS
+--------------------------------------------------------------------------------
+local activeSubmenuFrames = {}
+
+local function setWindowFocusState(winRecord)
+	if currentlyFocusedWindow == winRecord then return end
+
+	if currentlyFocusedWindow and currentlyFocusedWindow.SetFocusVisual then
+		currentlyFocusedWindow.SetFocusVisual(false)
+	end
+
+	currentlyFocusedWindow = winRecord
+
+	if winRecord then
+		if winRecord.SetFocusVisual then winRecord.SetFocusVisual(true) end
+		for i, w in ipairs(mruWindowsList) do
+			if w == winRecord then table.remove(mruWindowsList, i); break end
+		end
+		table.insert(mruWindowsList, 1, winRecord)
+	end
+
+	if currentThemeName == "Classic" then
+		updateClassicTaskbar()
+	end
+end
+
+UserInputService.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+		if currentlyFocusedWindow == nil then return end
+
+		local rawMousePos = UserInputService:GetMouseLocation()
+		local guiInset = GuiService:GetGuiInset()
+		local mousePos = Vector2.new(rawMousePos.X, rawMousePos.Y - guiInset.Y)
+
+		for _, f in ipairs(activeSubmenuFrames) do
+			if f and f.Parent then
+				local fPos = f.AbsolutePosition; local fSize = f.AbsoluteSize
+				if mousePos.X >= fPos.X and mousePos.X <= fPos.X + fSize.X and mousePos.Y >= fPos.Y and mousePos.Y <= fPos.Y + fSize.Y then
+					return
+				end
+			end
+		end
+
+		if ClassicTaskbar.Visible then
+			local tbPos = ClassicTaskbar.AbsolutePosition
+			local tbSize = ClassicTaskbar.AbsoluteSize
+			if mousePos.X >= tbPos.X and mousePos.X <= tbPos.X + tbSize.X and mousePos.Y >= tbPos.Y and mousePos.Y <= tbPos.Y + tbSize.Y then
+				return
+			end
+		end
+
+		local clickedInsideAny = false
+		for _, win in ipairs(activeWindowsList) do
+			if win.Frame and win.Frame.Parent and win.Frame.Visible then
+				local pos = win.Frame.AbsolutePosition
+				local size = win.Frame.AbsoluteSize
+				if mousePos.X >= pos.X and mousePos.X <= pos.X + size.X and mousePos.Y >= pos.Y and mousePos.Y <= pos.Y + size.Y then
+					clickedInsideAny = true
+					break
+				end
+			end
+		end
+
+		if not clickedInsideAny then
+			setWindowFocusState(nil)
+		end
+	end
+end)
+
+--------------------------------------------------------------------------------
+-- APP SWITCHER (CTRL + TAB) & DESKTOP TOGGLE (CTRL + D)
+--------------------------------------------------------------------------------
+local AppSwitcherGui = Instance.new("ScreenGui")
+AppSwitcherGui.Name = "SYSTEM_AppSwitcher"
+AppSwitcherGui.IgnoreGuiInset = true
+AppSwitcherGui.DisplayOrder = BASE_DISPLAY_ORDER + 999950
+AppSwitcherGui.ResetOnSpawn = false
+AppSwitcherGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+AppSwitcherGui.Parent = SystemGui
+
+local SwitcherContainerModern = Instance.new("Frame", AppSwitcherGui)
+SwitcherContainerModern.Name = "SwitcherContainerModern"
+SwitcherContainerModern.BorderSizePixel = 0
+SwitcherContainerModern.BackgroundColor3 = currentTheme.SwitcherBackground
+SwitcherContainerModern.BackgroundTransparency = 0.1
+SwitcherContainerModern.AnchorPoint = Vector2.new(0.5, 0.5)
+SwitcherContainerModern.Position = UDim2.new(0.5, 0, 0.5, 0)
+SwitcherContainerModern.AutomaticSize = Enum.AutomaticSize.XY
+SwitcherContainerModern.Visible = false
+Instance.new("UICorner", SwitcherContainerModern).CornerRadius = UDim.new(0, 10)
+
+local SwitcherStrokeModern = Instance.new("UIStroke", SwitcherContainerModern)
+SwitcherStrokeModern.Color = currentTheme.MainStroke
+
+local SwitcherPaddingModern = Instance.new("UIPadding", SwitcherContainerModern)
+SwitcherPaddingModern.PaddingTop = UDim.new(0, 14); SwitcherPaddingModern.PaddingBottom = UDim.new(0, 14)
+SwitcherPaddingModern.PaddingLeft = UDim.new(0, 14); SwitcherPaddingModern.PaddingRight = UDim.new(0, 14)
+
+local SwitcherLayoutModern = Instance.new("UIListLayout", SwitcherContainerModern)
+SwitcherLayoutModern.FillDirection = Enum.FillDirection.Horizontal
+SwitcherLayoutModern.HorizontalAlignment = Enum.HorizontalAlignment.Center
+SwitcherLayoutModern.VerticalAlignment = Enum.VerticalAlignment.Center
+SwitcherLayoutModern.Padding = UDim.new(0, 10)
+
+local SwitcherContainerClassic = Instance.new("Frame", AppSwitcherGui)
+SwitcherContainerClassic.Name = "SwitcherContainerClassic"
+SwitcherContainerClassic.BorderSizePixel = 0
+SwitcherContainerClassic.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+SwitcherContainerClassic.AnchorPoint = Vector2.new(0.5, 0.5)
+SwitcherContainerClassic.Position = UDim2.new(0.5, 0, 0.5, 0)
+SwitcherContainerClassic.Size = UDim2.new(0, 0, 0, 50)
+SwitcherContainerClassic.AutomaticSize = Enum.AutomaticSize.X
+SwitcherContainerClassic.Visible = false
+applyClassic3DBorder(SwitcherContainerClassic)
+
+local ClassicAppContainer = Instance.new("Frame", SwitcherContainerClassic)
+ClassicAppContainer.Name = "App"
+ClassicAppContainer.BackgroundTransparency = 1
+ClassicAppContainer.Size = UDim2.new(1, -10, 1, -10)
+ClassicAppContainer.Position = UDim2.new(0.5, 0, 0.5, 0)
+ClassicAppContainer.AnchorPoint = Vector2.new(0.5, 0.5)
+ClassicAppContainer.AutomaticSize = Enum.AutomaticSize.X
+
+local ClassicAppLayout = Instance.new("UIListLayout", ClassicAppContainer)
+ClassicAppLayout.Padding = UDim.new(0, 10)
+ClassicAppLayout.FillDirection = Enum.FillDirection.Horizontal
+ClassicAppLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+ClassicAppLayout.VerticalAlignment = Enum.VerticalAlignment.Center
+
+local ClassicAppPadding = Instance.new("UIPadding", ClassicAppContainer)
+ClassicAppPadding.PaddingLeft = UDim.new(0, 8); ClassicAppPadding.PaddingRight = UDim.new(0, 8)
+
+local ClassicAppSelectTitle = Instance.new("TextLabel", SwitcherContainerClassic)
+ClassicAppSelectTitle.Name = "AppSelect"
+ClassicAppSelectTitle.BackgroundTransparency = 1
+ClassicAppSelectTitle.AnchorPoint = Vector2.new(0.5, 0)
+ClassicAppSelectTitle.Position = UDim2.new(0.5, 0, 1, 10)
+ClassicAppSelectTitle.Size = UDim2.new(1, 40, 0, 20)
+ClassicAppSelectTitle.Font = Enum.Font.SourceSans
+ClassicAppSelectTitle.TextSize = 20
+ClassicAppSelectTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
+ClassicAppSelectTitle.Text = ""
+
+local ClassicAppSelectShadow = Instance.new("TextLabel", ClassicAppSelectTitle)
+ClassicAppSelectShadow.Name = "Shadow"
+ClassicAppSelectShadow.BackgroundTransparency = 1
+ClassicAppSelectShadow.Position = UDim2.new(0, 1, 0, 1)
+ClassicAppSelectShadow.Size = UDim2.new(1, 0, 1, 0)
+ClassicAppSelectShadow.Font = Enum.Font.SourceSans
+ClassicAppSelectShadow.TextSize = 20
+ClassicAppSelectShadow.TextColor3 = Color3.fromRGB(0, 0, 0)
+ClassicAppSelectShadow.ZIndex = 0
+ClassicAppSelectShadow.Text = ""
+
+local isSwitcherOpen = false
+local switcherCurrentIdx = 1
+local switcherCardElements = {}
+
+local function renderSwitcherCards()
+	for _, card in ipairs(switcherCardElements) do card:Destroy() end
+	switcherCardElements = {}
+
+	local isClassic = (currentThemeName == "Classic")
+
+	if isClassic then
+		SwitcherContainerModern.Visible = false
+		SwitcherContainerClassic.Visible = true
+
+		for idx, winData in ipairs(mruWindowsList) do
+			local isSelected = (idx == switcherCurrentIdx)
+
+			local itemFrame = Instance.new("Frame", ClassicAppContainer)
+			itemFrame.Name = isSelected and "Template_Select" or "Template_Unselect"
+			itemFrame.Size = UDim2.new(0, 35, 0, 35)
+			itemFrame.BorderSizePixel = 0
+			itemFrame.BackgroundColor3 = isSelected and Color3.fromRGB(0, 171, 255) or Color3.fromRGB(255, 255, 255)
+
+			local stroke = Instance.new("UIStroke", itemFrame)
+			stroke.Thickness = 2
+			stroke.Color = Color3.fromRGB(52, 103, 154)
+			stroke.LineJoinMode = Enum.LineJoinMode.Miter
+			stroke.Enabled = isSelected
+
+			local icon = Instance.new("ImageLabel", itemFrame)
+			icon.Name = "Iconapp"
+			icon.BackgroundTransparency = 1
+			icon.AnchorPoint = Vector2.new(0.5, 0.5)
+			icon.Position = UDim2.new(0.5, 0, 0.5, 0)
+			icon.Size = UDim2.new(0, 20, 0, 20)
+			icon.Image = winData.GetIcon and winData.GetIcon() or "rbxasset://textures/ui/GuiImagePlaceholder.png"
+
+			table.insert(switcherCardElements, itemFrame)
+		end
+
+		local activeWin = mruWindowsList[switcherCurrentIdx]
+		local titleText = activeWin and (activeWin.GetTitle and activeWin.GetTitle() or "Window") or ""
+		ClassicAppSelectTitle.Text = titleText
+		ClassicAppSelectShadow.Text = titleText
+	else
+		SwitcherContainerClassic.Visible = false
+		SwitcherContainerModern.Visible = true
+
+		for idx, winData in ipairs(mruWindowsList) do
+			local card = Instance.new("Frame", SwitcherContainerModern)
+			card.Name = "Card_" .. idx
+			card.Size = UDim2.new(0, 95, 0, 85)
+			card.BorderSizePixel = 0
+			card.BackgroundColor3 = (idx == switcherCurrentIdx) and currentTheme.SwitcherCardSelected or currentTheme.SwitcherCardBg
+			Instance.new("UICorner", card).CornerRadius = UDim.new(0, 6)
+
+			local cardStroke = Instance.new("UIStroke", card)
+			cardStroke.Color = (idx == switcherCurrentIdx) and Color3.fromRGB(0, 140, 255) or currentTheme.MainStroke
+			cardStroke.Thickness = (idx == switcherCurrentIdx) and 2 or 1
+
+			local cardPadding = Instance.new("UIPadding", card)
+			cardPadding.PaddingTop = UDim.new(0, 8); cardPadding.PaddingBottom = UDim.new(0, 6)
+			cardPadding.PaddingLeft = UDim.new(0, 6); cardPadding.PaddingRight = UDim.new(0, 6)
+
+			local cardLayout = Instance.new("UIListLayout", card)
+			cardLayout.FillDirection = Enum.FillDirection.Vertical
+			cardLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+			cardLayout.VerticalAlignment = Enum.VerticalAlignment.Center
+			cardLayout.Padding = UDim.new(0, 6)
+
+			local icon = Instance.new("ImageLabel", card)
+			icon.BackgroundTransparency = 1
+			icon.Size = UDim2.new(0, 36, 0, 36)
+			icon.Image = winData.GetIcon and winData.GetIcon() or "rbxasset://textures/ui/GuiImagePlaceholder.png"
+
+			local title = Instance.new("TextLabel", card)
+			title.BackgroundTransparency = 1
+			title.Size = UDim2.new(1, -12, 0, 16)
+			title.TextSize = 11
+			title.TextColor3 = currentTheme.TitleTextColor
+			title.FontFace = Font.new("rbxassetid://12187365364", Enum.FontWeight.Medium, Enum.FontStyle.Normal)
+			title.Text = winData.GetTitle and winData.GetTitle() or "Window"
+			title.TextTruncate = Enum.TextTruncate.AtEnd
+
+			table.insert(switcherCardElements, card)
+		end
+	end
+end
+
+local function updateSwitcherSelection()
+	local isClassic = (currentThemeName == "Classic")
+
+	if isClassic then
+		for idx, card in ipairs(switcherCardElements) do
+			local isSelected = (idx == switcherCurrentIdx)
+			card.BackgroundColor3 = isSelected and Color3.fromRGB(0, 171, 255) or Color3.fromRGB(255, 255, 255)
+			local stroke = card:FindFirstChildOfClass("UIStroke")
+			if stroke then stroke.Enabled = isSelected end
+		end
+		local activeWin = mruWindowsList[switcherCurrentIdx]
+		local titleText = activeWin and (activeWin.GetTitle and activeWin.GetTitle() or "Window") or ""
+		ClassicAppSelectTitle.Text = titleText
+		ClassicAppSelectShadow.Text = titleText
+	else
+		for idx, card in ipairs(switcherCardElements) do
+			local isSelected = (idx == switcherCurrentIdx)
+			card.BackgroundColor3 = isSelected and currentTheme.SwitcherCardSelected or currentTheme.SwitcherCardBg
+			local stroke = card:FindFirstChildOfClass("UIStroke")
+			if stroke then
+				stroke.Color = isSelected and Color3.fromRGB(0, 140, 255) or currentTheme.MainStroke
+				stroke.Thickness = isSelected and 2 or 1
+			end
+		end
+	end
+end
+
+local function openSwitcher()
+	if #mruWindowsList == 0 then return end
+	isSwitcherOpen = true
+	switcherCurrentIdx = (#mruWindowsList >= 2) and 2 or 1
+
+	SwitcherContainerModern.BackgroundColor3 = currentTheme.SwitcherBackground
+	SwitcherStrokeModern.Color = currentTheme.MainStroke
+	renderSwitcherCards()
+	updateSwitcherSelection()
+end
+
+local function cycleSwitcher()
+	if not isSwitcherOpen or #mruWindowsList == 0 then return end
+	switcherCurrentIdx = (switcherCurrentIdx % #mruWindowsList) + 1
+	updateSwitcherSelection()
+end
+
+local function closeSwitcherAndSelect()
+	if not isSwitcherOpen then return end
+	isSwitcherOpen = false
+	SwitcherContainerModern.Visible = false
+	SwitcherContainerClassic.Visible = false
+
+	local targetWin = mruWindowsList[switcherCurrentIdx]
+	if targetWin then
+		if targetWin.IsMinimized and targetWin.IsMinimized() then targetWin.Restore() end
+		if targetWin.Focus then targetWin.Focus() end
+	end
+end
+
+local ctrlPressed = false
+UserInputService.InputBegan:Connect(function(input)
+	if input.KeyCode == Enum.KeyCode.LeftControl or input.KeyCode == Enum.KeyCode.RightControl then ctrlPressed = true end
+	if input.KeyCode == Enum.KeyCode.Tab and ctrlPressed then
+		if not isSwitcherOpen then openSwitcher() else cycleSwitcher() end
+	end
+	if input.KeyCode == Enum.KeyCode.D and ctrlPressed then
+		if not isDesktopMinimizedState then
+			desktopMinimizedStack = {}
+			local anyMinimized = false
+			for _, win in ipairs(activeWindowsList) do
+				if win.IsMinimized and not win.IsMinimized() then
+					table.insert(desktopMinimizedStack, win)
+					win.Minimize()
+					anyMinimized = true
+				end
+			end
+			if anyMinimized then isDesktopMinimizedState = true end
+		else
+			for _, win in ipairs(desktopMinimizedStack) do
+				if win and win.Restore then win.Restore() end
+			end
+			desktopMinimizedStack = {}
+			isDesktopMinimizedState = false
+		end
+	end
+end)
+
+UserInputService.InputEnded:Connect(function(input)
+	if input.KeyCode == Enum.KeyCode.LeftControl or input.KeyCode == Enum.KeyCode.RightControl then
+		ctrlPressed = false
+		if isSwitcherOpen then closeSwitcherAndSelect() end
+	end
+end)
+
+--------------------------------------------------------------------------------
+-- CONTEXT MENU SYSTEM (TỰ DÃN THÔNG MINH, FIX ĐÈ CHỮ CHECKBOX)
+--------------------------------------------------------------------------------
+local function clearSubmenusFromLevel(level)
+	for i = #activeSubmenuFrames, level, -1 do
+		if activeSubmenuFrames[i] then
+			activeSubmenuFrames[i]:Destroy()
+			table.remove(activeSubmenuFrames, i)
+		end
+	end
+end
+
+renderContextMenuFrame = function(pos, items, level, parentBtnWidth)
+	level = level or 1
+	clearSubmenusFromLevel(level)
+
+	local isClassic = (currentThemeName == "Classic")
+	local font = isClassic and Enum.Font.SourceSans or Enum.Font.Gotham
+	local itemHeight = isClassic and 25 or 24
+	local sepHeight = 10
+	local itemSpacing = isClassic and 0 or 2
+	local padTop = isClassic and 3 or 4
+	local padBottom = isClassic and 3 or 4
+	local padLeft = isClassic and 3 or 4
+	local padRight = isClassic and 3 or 4
+
+	local minMenuWidth = 180
+	local maxItemWidth = minMenuWidth
+
+	-- 1. Tính toán bề ngang chuẩn xác (Kèm đệm an toàn cho chữ tiếng Việt và Emoji)
+	for _, item in ipairs(items or {}) do
+		if item.Type ~= "Separator" then
+			local text = item.Text or ""
+			local rawSize = TextService:GetTextSize(text, 13, font, Vector2.new(2000, 50))
+			local textW = math.ceil(rawSize.X * 1.1)
+
+			local extraPadding = 36
+			if item.Type == "Select" then
+				extraPadding = 64 -- Chừa khoảng cách rộng rãi cho Checkbox
+			elseif item.Type == "Submenu" then
+				extraPadding = 54 -- Chừa khoảng cách rộng rãi cho Mũi tên Submenu
+			end
+
+			local itemW = textW + extraPadding
+			if itemW > maxItemWidth then maxItemWidth = itemW end
+		end
+	end
+
+	local menuWidth = math.ceil(maxItemWidth) + 12
+
+	-- 2. Tính toán chuẩn xác 100% chiều cao (Cộng đầy đủ khoảng cách Padding 2px giữa các nút)
+	local totalContentHeight = 0
+	local itemCount = #items
+
+	for _, item in ipairs(items or {}) do
+		if item.Type == "Separator" then
+			totalContentHeight = totalContentHeight + sepHeight
+		else
+			totalContentHeight = totalContentHeight + itemHeight
+		end
+	end
+
+	local totalGaps = math.max(0, itemCount - 1) * itemSpacing
+	local totalMenuHeight = totalContentHeight + totalGaps + padTop + padBottom
+
+	-- 3. Tạo khung Menu
+	local menuFrame = Instance.new("ImageButton", ContextMenuGui)
+	menuFrame.Name = "ContextMenuLevel_" .. level
+	menuFrame.BorderSizePixel = 0
+	menuFrame.AutoButtonColor = false
+	menuFrame.BackgroundColor3 = isClassic and Color3.fromRGB(255, 255, 255) or currentTheme.ContextMenuBackground
+	menuFrame.Size = UDim2.new(0, menuWidth, 0, totalMenuHeight)
+	menuFrame.ZIndex = 999900 + level
+
+	if isClassic then
+		applyContextMenu3DBorder(menuFrame)
+	else
+		Instance.new("UICorner", menuFrame).CornerRadius = UDim.new(0, 6)
+		local stroke = Instance.new("UIStroke", menuFrame)
+		stroke.Color = currentTheme.ContextMenuStroke
+	end
+
+	local padding = Instance.new("UIPadding", menuFrame)
+	padding.PaddingTop = UDim.new(0, padTop)
+	padding.PaddingBottom = UDim.new(0, padBottom)
+	padding.PaddingLeft = UDim.new(0, padLeft)
+	padding.PaddingRight = UDim.new(0, padRight)
+
+	local listContainer = Instance.new("Frame", menuFrame)
+	listContainer.BackgroundTransparency = 1
+	listContainer.Size = UDim2.new(1, 0, 1, 0)
+	listContainer.ZIndex = menuFrame.ZIndex + 1
+
+	local layout = Instance.new("UIListLayout", listContainer)
+	layout.HorizontalAlignment = Enum.HorizontalAlignment.Left
+	layout.SortOrder = Enum.SortOrder.LayoutOrder
+	layout.Padding = UDim.new(0, itemSpacing)
+
+	-- Căn chỉnh tránh tràn màn hình
+	local camera = workspace.CurrentCamera
+	local viewport = camera and camera.ViewportSize or Vector2.new(1920, 1080)
+	local finalX = pos.X
+	local finalY = pos.Y
+
+	if finalX + menuWidth > viewport.X - 10 then
+		if level > 1 and parentBtnWidth then
+			finalX = math.max(10, pos.X - parentBtnWidth - menuWidth - 4)
+		else
+			finalX = math.max(10, pos.X - menuWidth)
+		end
+	end
+	if finalY + totalMenuHeight > viewport.Y - 10 then
+		finalY = math.max(10, viewport.Y - totalMenuHeight - 10)
+	end
+
+	menuFrame.Position = UDim2.new(0, finalX, 0, finalY)
+	table.insert(activeSubmenuFrames, menuFrame)
+
+	local itemDefaultBg = isClassic and Color3.fromRGB(255, 255, 255) or currentTheme.ContextItemDefault
+	local itemHoverBg = isClassic and Color3.fromRGB(225, 225, 225) or currentTheme.ContextItemHover
+
+	local currentYOffset = finalY + padTop
+
+	-- 4. Tạo các phần tử con
+	for itemIndex, item in ipairs(items or {}) do
+		local thisItemY = currentYOffset
+		local thisItemH = (item.Type == "Separator") and sepHeight or itemHeight
+
+		if item.Type == "Separator" then
+			local Sep = Instance.new("Frame", listContainer)
+			Sep.BackgroundTransparency = 1
+			Sep.Size = UDim2.new(1, 0, 0, sepHeight)
+			Sep.ZIndex = listContainer.ZIndex
+
+			local LineFrame = Instance.new("Frame", Sep)
+			LineFrame.BorderSizePixel = 0
+			LineFrame.BackgroundColor3 = isClassic and Color3.fromRGB(171, 171, 171) or currentTheme.ContextItemSeparator
+			LineFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+			LineFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
+			LineFrame.Size = UDim2.new(1, -6, 0, 1)
+			LineFrame.ZIndex = Sep.ZIndex
+
+		elseif item.Type == "Button" then
+			local Btn = Instance.new("TextButton", listContainer)
+			Btn.BorderSizePixel = 0
+			Btn.AutoButtonColor = false
+			Btn.BackgroundColor3 = itemDefaultBg
+			Btn.Size = UDim2.new(1, 0, 0, itemHeight)
+			Btn.Text = ""
+			Btn.ZIndex = listContainer.ZIndex
+
+			if not isClassic then Instance.new("UICorner", Btn).CornerRadius = UDim.new(0, 4) end
+
+			local Text = Instance.new("TextLabel", Btn)
+			Text.BackgroundTransparency = 1
+			Text.TextSize = 13
+			Text.TextXAlignment = Enum.TextXAlignment.Left
+			Text.TextColor3 = item.Disabled and (isClassic and Color3.fromRGB(101, 101, 101) or currentTheme.ContextItemTextDisabled)
+				or (isClassic and Color3.fromRGB(0, 0, 0) or currentTheme.ContextItemText)
+			Text.Font = font
+			Text.Size = UDim2.new(1, 0, 1, 0)
+			Text.Text = item.Text or ""
+			Text.ZIndex = Btn.ZIndex
+
+			local Pad = Instance.new("UIPadding", Text)
+			Pad.PaddingLeft = UDim.new(0, 8); Pad.PaddingRight = UDim.new(0, 8)
+
+			if not item.Disabled then
+				if isClassic then
+					Btn.MouseEnter:Connect(function() Btn.BackgroundColor3 = itemHoverBg; clearSubmenusFromLevel(level + 1) end)
+					Btn.MouseLeave:Connect(function() Btn.BackgroundColor3 = itemDefaultBg end)
+				else
+					applyHoverEffect(Btn, itemDefaultBg, itemHoverBg)
+					Btn.MouseEnter:Connect(function() Text.TextColor3 = Color3.fromRGB(255, 255, 255); clearSubmenusFromLevel(level + 1) end)
+					Btn.MouseLeave:Connect(function() Text.TextColor3 = currentTheme.ContextItemText end)
+				end
+
+				Btn.MouseButton1Click:Connect(function()
+					clearSubmenusFromLevel(1)
+					if item.Callback then item.Callback() end
+				end)
+			end
+
+		elseif item.Type == "Select" then
+			local Btn = Instance.new("TextButton", listContainer)
+			Btn.BorderSizePixel = 0
+			Btn.AutoButtonColor = false
+			Btn.BackgroundColor3 = itemDefaultBg
+			Btn.Size = UDim2.new(1, 0, 0, itemHeight)
+			Btn.Text = ""
+			Btn.ZIndex = listContainer.ZIndex
+
+			if not isClassic then Instance.new("UICorner", Btn).CornerRadius = UDim.new(0, 4) end
+
+			local Text = Instance.new("TextLabel", Btn)
+			Text.BackgroundTransparency = 1
+			Text.TextSize = 13
+			Text.TextXAlignment = Enum.TextXAlignment.Left
+			Text.TextColor3 = item.Disabled and (isClassic and Color3.fromRGB(101, 101, 101) or currentTheme.ContextItemTextDisabled)
+				or (isClassic and Color3.fromRGB(0, 0, 0) or currentTheme.ContextItemText)
+			Text.Font = font
+			Text.Size = UDim2.new(1, -30, 1, 0)
+			Text.Text = item.Text or ""
+			Text.ZIndex = Btn.ZIndex
+
+			local Pad = Instance.new("UIPadding", Text)
+			Pad.PaddingLeft = UDim.new(0, 8)
+
+			local Hitbox = Instance.new("TextButton", Btn)
+			Hitbox.Name = "Hitbox"
+			Hitbox.BorderSizePixel = 0
+			Hitbox.AutoButtonColor = false
+			Hitbox.Text = ""
+			Hitbox.AnchorPoint = Vector2.new(1, 0.5)
+			Hitbox.Position = UDim2.new(1, -6, 0.5, 0)
+			Hitbox.Size = UDim2.new(0, 15, 0, 15)
+			Hitbox.BackgroundColor3 = isClassic and Color3.fromRGB(255, 255, 255) or currentTheme.ContextCheckBoxBg
+			Hitbox.ZIndex = Btn.ZIndex + 1
+
+			local stroke = Instance.new("UIStroke", Hitbox)
+			stroke.Color = isClassic and Color3.fromRGB(192, 192, 192) or currentTheme.ContextMenuStroke
+			stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+
+			local ActiveMark = Instance.new("Frame", Hitbox)
+			ActiveMark.Name = "Active"
+			ActiveMark.BorderSizePixel = 0
+			ActiveMark.AnchorPoint = Vector2.new(0.5, 0.5)
+			ActiveMark.Position = UDim2.new(0.5, 0, 0.5, 0)
+			ActiveMark.Size = UDim2.new(1, -4, 1, -4)
+			ActiveMark.BackgroundColor3 = isClassic and Color3.fromRGB(86, 171, 255) or currentTheme.ContextCheckMark
+			ActiveMark.Visible = item.Selected or false
+			ActiveMark.ZIndex = Hitbox.ZIndex + 1
+
+			if not isClassic then
+				Instance.new("UICorner", Hitbox).CornerRadius = UDim.new(0, 3)
+				Instance.new("UICorner", ActiveMark).CornerRadius = UDim.new(0, 2)
+			end
+
+			if not item.Disabled then
+				if isClassic then
+					Btn.MouseEnter:Connect(function() Btn.BackgroundColor3 = itemHoverBg; clearSubmenusFromLevel(level + 1) end)
+					Btn.MouseLeave:Connect(function() Btn.BackgroundColor3 = itemDefaultBg end)
+				else
+					applyHoverEffect(Btn, itemDefaultBg, itemHoverBg)
+					Btn.MouseEnter:Connect(function() Text.TextColor3 = Color3.fromRGB(255, 255, 255); clearSubmenusFromLevel(level + 1) end)
+					Btn.MouseLeave:Connect(function() Text.TextColor3 = currentTheme.ContextItemText end)
+				end
+
+				local function toggle()
+					item.Selected = not item.Selected
+					ActiveMark.Visible = item.Selected
+					if item.Callback then item.Callback(item.Selected) end
+				end
+
+				Btn.MouseButton1Click:Connect(toggle)
+				Hitbox.MouseButton1Click:Connect(toggle)
+			end
+
+		elseif item.Type == "Submenu" then
+			local Btn = Instance.new("TextButton", listContainer)
+			Btn.BorderSizePixel = 0
+			Btn.AutoButtonColor = false
+			Btn.BackgroundColor3 = itemDefaultBg
+			Btn.Size = UDim2.new(1, 0, 0, itemHeight)
+			Btn.Text = ""
+			Btn.ZIndex = listContainer.ZIndex
+
+			if not isClassic then Instance.new("UICorner", Btn).CornerRadius = UDim.new(0, 4) end
+
+			local Text = Instance.new("TextLabel", Btn)
+			Text.BackgroundTransparency = 1
+			Text.TextSize = 13
+			Text.TextXAlignment = Enum.TextXAlignment.Left
+			Text.TextColor3 = item.Disabled and (isClassic and Color3.fromRGB(101, 101, 101) or currentTheme.ContextItemTextDisabled)
+				or (isClassic and Color3.fromRGB(0, 0, 0) or currentTheme.ContextItemText)
+			Text.Font = font
+			Text.Size = UDim2.new(1, -26, 1, 0)
+			Text.Text = item.Text or ""
+			Text.ZIndex = Btn.ZIndex
+
+			local Pad = Instance.new("UIPadding", Text)
+			Pad.PaddingLeft = UDim.new(0, 8)
+
+			local arrowHolder = Instance.new("Frame", Btn)
+			arrowHolder.Name = "SubmenuArrow"
+			arrowHolder.BackgroundTransparency = 1
+			arrowHolder.AnchorPoint = Vector2.new(1, 0.5)
+			arrowHolder.Position = UDim2.new(1, -6, 0.5, 0)
+			arrowHolder.Size = UDim2.new(0, 15, 0, 15)
+			arrowHolder.ZIndex = Btn.ZIndex + 1
+
+			local arrowColor = item.Disabled and Color3.fromRGB(101, 101, 101) or (isClassic and Color3.fromRGB(0, 0, 0) or currentTheme.ContextArrow)
+			if isClassic then
+				createPixelArrow(arrowHolder, arrowColor, 0)
+			else
+				local arrowText = Instance.new("TextLabel", arrowHolder)
+				arrowText.BackgroundTransparency = 1
+				arrowText.Size = UDim2.new(1, 0, 1, 0)
+				arrowText.Text = "›"
+				arrowText.TextColor3 = arrowColor
+				arrowText.TextSize = 16
+			end
+
+			local function openSubmenu()
+				local subPos = Vector2.new(finalX + menuWidth + 2, thisItemY)
+				renderContextMenuFrame(subPos, item.Items, level + 1, menuWidth)
+			end
+
+			if not item.Disabled then
+				if isClassic then
+					Btn.MouseEnter:Connect(function() Btn.BackgroundColor3 = itemHoverBg; openSubmenu() end)
+					Btn.MouseLeave:Connect(function() Btn.BackgroundColor3 = itemDefaultBg end)
+				else
+					applyHoverEffect(Btn, itemDefaultBg, itemHoverBg)
+					local hoverTask = nil
+					Btn.MouseEnter:Connect(function() Text.TextColor3 = Color3.fromRGB(255, 255, 255); hoverTask = task.delay(0.1, openSubmenu) end)
+					Btn.MouseLeave:Connect(function() Text.TextColor3 = currentTheme.ContextItemText; if hoverTask then task.cancel(hoverTask); hoverTask = nil end end)
+				end
+
+				Btn.MouseButton1Click:Connect(openSubmenu)
+			end
+		end
+
+		currentYOffset = currentYOffset + thisItemH + itemSpacing
+	end
+
+	return menuFrame
+end
+
+UserInputService.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+		if #activeSubmenuFrames > 0 then
+			local rawMousePos = UserInputService:GetMouseLocation()
+			local guiInset = GuiService:GetGuiInset()
+			local mousePos = Vector2.new(rawMousePos.X, rawMousePos.Y - guiInset.Y)
+
+			local clickedInsideAny = false
+			for _, frame in ipairs(activeSubmenuFrames) do
+				if frame and frame.Parent then
+					local framePos = frame.AbsolutePosition; local frameSize = frame.AbsoluteSize
+					if mousePos.X >= framePos.X and mousePos.X <= framePos.X + frameSize.X and mousePos.Y >= framePos.Y and mousePos.Y <= framePos.Y + frameSize.Y then
+						clickedInsideAny = true
+						break
+					end
+				end
+			end
+
+			if not clickedInsideAny then clearSubmenusFromLevel(1) end
+		end
+	end
+end)
+
+--------------------------------------------------------------------------------
+-- 3D RETRO BUTTON HELPER
+--------------------------------------------------------------------------------
+function Library:Create3DButton(parent, text, size, pos, callback)
+	local btn = Instance.new("TextButton")
+	btn.Name = "Button3D_" .. text
+	btn.Size = size or UDim2.new(0, 75, 0, 23)
+	btn.Position = pos or UDim2.new(0, 0, 0, 0)
+	btn.BackgroundColor3 = Color3.fromRGB(240, 240, 240)
+	btn.BorderSizePixel = 0
+	btn.Text = ""
+	btn.AutoButtonColor = false
+	btn.Parent = parent
+
+	local borderTop = Instance.new("Frame", btn)
+	borderTop.Size = UDim2.new(1, 0, 0, 1); borderTop.Position = UDim2.new(0, 0, 0, 0); borderTop.BackgroundColor3 = Color3.fromRGB(255, 255, 255); borderTop.BorderSizePixel = 0
+	local borderLeft = Instance.new("Frame", btn)
+	borderLeft.Size = UDim2.new(0, 1, 1, 0); borderLeft.Position = UDim2.new(0, 0, 0, 0); borderLeft.BackgroundColor3 = Color3.fromRGB(255, 255, 255); borderLeft.BorderSizePixel = 0
+	local borderBottom = Instance.new("Frame", btn)
+	borderBottom.Size = UDim2.new(1, 0, 0, 1); borderBottom.Position = UDim2.new(0, 0, 1, -1); borderBottom.BackgroundColor3 = Color3.fromRGB(105, 105, 105); borderBottom.BorderSizePixel = 0
+	local borderRight = Instance.new("Frame", btn)
+	borderRight.Size = UDim2.new(0, 1, 1, 0); borderRight.Position = UDim2.new(1, -1, 0, 0); borderRight.BackgroundColor3 = Color3.fromRGB(105, 105, 105); borderRight.BorderSizePixel = 0
+
+	local btnText = Instance.new("TextLabel", btn)
+	btnText.Name = "Text"
+	btnText.Size = UDim2.new(1, 0, 1, 0)
+	btnText.BackgroundTransparency = 1
+	btnText.Font = Enum.Font.SourceSans
+	btnText.TextSize = 14
+	btnText.TextColor3 = Color3.fromRGB(0, 0, 0)
+	btnText.Text = text
+
+	local isHover = false; local isDown = false
+	local function setPressed(pressed)
+		if pressed then
+			borderTop.BackgroundColor3 = Color3.fromRGB(105, 105, 105); borderLeft.BackgroundColor3 = Color3.fromRGB(105, 105, 105)
+			borderBottom.BackgroundColor3 = Color3.fromRGB(255, 255, 255); borderRight.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+			btnText.Position = UDim2.new(0, 1, 0, 1); btn.BackgroundColor3 = Color3.fromRGB(225, 225, 225)
+		else
+			borderTop.BackgroundColor3 = Color3.fromRGB(255, 255, 255); borderLeft.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+			borderBottom.BackgroundColor3 = Color3.fromRGB(105, 105, 105); borderRight.BackgroundColor3 = Color3.fromRGB(105, 105, 105)
+			btnText.Position = UDim2.new(0, 0, 0, 0); btn.BackgroundColor3 = isHover and Color3.fromRGB(248, 248, 248) or Color3.fromRGB(240, 240, 240)
+		end
+	end
+
+	btn.MouseEnter:Connect(function() isHover = true; if not isDown then btn.BackgroundColor3 = Color3.fromRGB(248, 248, 248) end end)
+	btn.MouseLeave:Connect(function() isHover = false; if not isDown then btn.BackgroundColor3 = Color3.fromRGB(240, 240, 240) end end)
+	btn.MouseButton1Down:Connect(function() isDown = true; setPressed(true) end)
+	UserInputService.InputEnded:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+			if isDown then isDown = false; setPressed(false) end
+		end
+	end)
+
+	btn.MouseButton1Click:Connect(function() if callback then callback() end end)
+	return btn
+end
+
+--------------------------------------------------------------------------------
+-- CREATE WINDOW
+--------------------------------------------------------------------------------
+local registeredWindowsRegistry = {} 
+
+
+function Library:CreateWindow(config)
+	config = config or {}
+	local windowTitle = config.Title or "Window"
+	local windowIcon = config.Icon or "rbxasset://textures/ui/GuiImagePlaceholder.png"
+	local targetParent = config.Parent or NonUserGui
+	local isClassicMode = (currentTheme.Type == "Classic")
+
+	currentTopWindowZIndex = currentTopWindowZIndex + 1
+
+	----------------------------------------------------------------------------
+	-- CLASSIC WINDOW MODE
+	----------------------------------------------------------------------------
+	if isClassicMode then
+		local defaultSize = config.Size or UDim2.new(0, 260, 0, 340)
+		local defaultPos = config.Position or UDim2.new(0, 60, 0, 60)
+		local minSize = config.MinSize or Vector2.new(160, 110)
+		local maxSize = config.MaxSize or Vector2.new(1920, 1080)
+
+		local isMinimizedState = false
+
+		local FloatingWindow = Instance.new("Frame", targetParent)
+		FloatingWindow.Name = "ClassicWindow_" .. windowTitle
+		FloatingWindow.Size = defaultSize
+		FloatingWindow.Position = defaultPos
+		FloatingWindow.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+		FloatingWindow.BackgroundTransparency = 1
+		FloatingWindow.BorderSizePixel = 0
+		FloatingWindow.ClipsDescendants = true
+		FloatingWindow.Active = true
+		FloatingWindow.ZIndex = currentTopWindowZIndex
+
+		FloatingWindow.MouseEnter:Connect(function() SetWindowHover(true) end)
+		FloatingWindow.MouseLeave:Connect(function() SetWindowHover(false) end)
+
+		applyClassic3DBorder(FloatingWindow)
+
+		-- TitleBar
+		local TitleBar = Instance.new("Frame", FloatingWindow)
+		TitleBar.Name = "TitleBar"
+		TitleBar.Size = UDim2.new(1, -8, 0, 17)
+		TitleBar.Position = UDim2.new(0, 4, 0, 4)
+		TitleBar.BackgroundColor3 = Color3.fromRGB(51, 151, 251)
+		TitleBar.BorderSizePixel = 0
+		TitleBar.ZIndex = 5
+
+		local TitleText = Instance.new("TextLabel", TitleBar)
+		TitleText.Name = "Title"
+		TitleText.Size = UDim2.new(1, -20, 1, -2)
+		TitleText.Position = UDim2.new(0, 4, 0, 0)
+		TitleText.BackgroundTransparency = 1
+		TitleText.Font = Enum.Font.SourceSans
+		TitleText.TextSize = 14
+		TitleText.TextColor3 = Color3.fromRGB(0, 0, 0)
+		TitleText.TextXAlignment = Enum.TextXAlignment.Left
+		TitleText.Text = windowTitle
+		TitleText.ZIndex = 6
+
+		local XButton = Instance.new("ImageButton", TitleBar)
+		XButton.Name = "X"
+		XButton.Size = UDim2.new(0, 11, 0, 11)
+		XButton.Position = UDim2.new(1, -15, 0, 3)
+		XButton.BackgroundTransparency = 1
+		XButton.Image = ASSET_X_NORMAL
+		XButton.ZIndex = 7
+
+		local Handle = Instance.new("TextButton", TitleBar)
+		Handle.Name = "Handle"
+		Handle.Size = UDim2.new(1, 0, 1, 0)
+		Handle.BackgroundTransparency = 1
+		Handle.Text = ""
+		Handle.ZIndex = 6
+
+		local Padding = Instance.new("Frame", FloatingWindow)
+		Padding.Name = "Padding"
+		Padding.Size = UDim2.new(1, -8, 0, 1)
+		Padding.Position = UDim2.new(0, 4, 0, 21)
+		Padding.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+		Padding.BorderSizePixel = 0
+
+		local Container = Instance.new("TextButton", FloatingWindow)
+		Container.Name = "Container"
+		Container.Position = UDim2.new(0, 4, 0, 22)
+		Container.Size = UDim2.new(0, math.max(0, FloatingWindow.AbsoluteSize.X - 8), 0, math.max(0, FloatingWindow.AbsoluteSize.Y - 26))
+		Container.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+		Container.BackgroundTransparency = 0
+		Container.BorderSizePixel = 0
+		Container.Text = ""
+		Container.AutoButtonColor = false
+		Container.ClipsDescendants = true
+		Container.ZIndex = 2
+
+		local UPDATE_INTERVAL = 1 / 22 
+		local accumulatedTime = 0
+		local renderConn
+		renderConn = RunService.RenderStepped:Connect(function(dt)
+			if not FloatingWindow or not FloatingWindow.Parent then
+				renderConn:Disconnect()
+				return
+			end
+			accumulatedTime = accumulatedTime + dt
+			if accumulatedTime >= UPDATE_INTERVAL and not isMinimizedState then
+				accumulatedTime = accumulatedTime % UPDATE_INTERVAL
+				local targetW = math.max(0, FloatingWindow.AbsoluteSize.X - 8)
+				local targetH = math.max(0, FloatingWindow.AbsoluteSize.Y - 26)
+				Container.Size = UDim2.new(0, targetW, 0, targetH)
+			end
+		end)
+
+		local ResizeHandles = Instance.new("Frame", FloatingWindow)
+		ResizeHandles.Name = "ResizeHandles"
+		ResizeHandles.Size = UDim2.new(1, 0, 1, 0)
+		ResizeHandles.BackgroundTransparency = 1
+		ResizeHandles.BorderSizePixel = 0
+		ResizeHandles.ZIndex = 4
+
+		local function makeHandle(name, size, pos)
+			local h = Instance.new("TextButton", ResizeHandles)
+			h.Name = name; h.Size = size; h.Position = pos
+			h.BackgroundTransparency = 1; h.Text = ""; h.ZIndex = 4; h.BorderSizePixel = 0
+			return h
+		end
+
+		makeHandle("Top", UDim2.new(1, -42, 0, 4), UDim2.new(0, 21, 0, 0))
+		makeHandle("Bottom", UDim2.new(1, -42, 0, 4), UDim2.new(0, 21, 1, -4))
+		makeHandle("Left", UDim2.new(0, 4, 1, -42), UDim2.new(0, 0, 0, 21))
+		makeHandle("Right", UDim2.new(0, 4, 1, -42), UDim2.new(1, -4, 0, 21))
+		makeHandle("TopLeftVertical", UDim2.new(0, 4, 0, 21), UDim2.new(0, 0, 0, 0))
+		makeHandle("TopLeftHorizontal", UDim2.new(0, 21, 0, 4), UDim2.new(0, 0, 0, 0))
+		makeHandle("TopRightVertical", UDim2.new(0, 4, 0, 21), UDim2.new(1, -4, 0, 0))
+		makeHandle("TopRightHorizontal", UDim2.new(0, 21, 0, 4), UDim2.new(1, -21, 0, 0))
+		makeHandle("BottomLeftVertical", UDim2.new(0, 4, 0, 21), UDim2.new(0, 0, 1, -21))
+		makeHandle("BottomLeftHorizontal", UDim2.new(0, 21, 0, 4), UDim2.new(0, 0, 1, -4))
+		makeHandle("BottomRightVertical", UDim2.new(0, 4, 0, 21), UDim2.new(1, -4, 1, -21))
+		makeHandle("BottomRightHorizontal", UDim2.new(0, 21, 0, 4), UDim2.new(1, -21, 1, -4))
+
+		local windowRecord = {}
+
+		local function bringToFront()
+			if FloatingWindow.ZIndex < currentTopWindowZIndex then
+				currentTopWindowZIndex = currentTopWindowZIndex + 1
+				FloatingWindow.ZIndex = currentTopWindowZIndex
+			end
+			setWindowFocusState(windowRecord)
+		end
+
+		local function setFocusVisual(isFocused)
+			if isFocused then
+				TitleBar.BackgroundColor3 = Color3.fromRGB(51, 151, 251)
+				TitleText.TextColor3 = Color3.fromRGB(0, 0, 0)
+			else
+				TitleBar.BackgroundColor3 = Color3.fromRGB(129, 129, 129)
+				TitleText.TextColor3 = Color3.fromRGB(196, 196, 196)
+			end
+		end
+
+		local function setClassicMinimize(minimize)
+			isMinimizedState = minimize
+			FloatingWindow.Visible = not minimize
+			if minimize then
+				if currentlyFocusedWindow == windowRecord then setWindowFocusState(nil) end
+			else
+				bringToFront()
+			end
+			updateClassicTaskbar()
+		end
+
+		FloatingWindow.InputBegan:Connect(function(input)
+			if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.MouseButton2 or input.UserInputType == Enum.UserInputType.Touch then
+				bringToFront()
+			end
+		end)
+
+		local isDragging = false
+		local dragStartMouse = Vector2.zero
+		local dragStartPos = UDim2.new()
+		local lastTitleClick = 0
+
+		Handle.InputBegan:Connect(function(input)
+			if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+				bringToFront()
+
+				local now = tick()
+				if now - lastTitleClick < 0.28 then
+					lastTitleClick = 0
+					setClassicMinimize(true)
+					return
+				else
+					lastTitleClick = now
+				end
+
+				local useOutlineDrag = (config.OutlineDrag ~= nil) and config.OutlineDrag or isGlobalOutlineDrag
+
+				LockCursorIcon(ICON_DRAG)
+				isDragging = true
+				dragStartMouse = UserInputService:GetMouseLocation()
+				dragStartPos = FloatingWindow.Position
+
+				if useOutlineDrag then
+					DragOutlineFrame.Size = FloatingWindow.Size
+					DragOutlineFrame.Position = FloatingWindow.Position
+					DragOutlineFrame.Visible = true
+				end
+
+				local moveConn, releaseConn
+				moveConn = UserInputService.InputChanged:Connect(function(moveInput)
+					if isDragging and (moveInput.UserInputType == Enum.UserInputType.MouseMovement or moveInput.UserInputType == Enum.UserInputType.Touch) then
+						local mouseNow = UserInputService:GetMouseLocation()
+						local delta = mouseNow - dragStartMouse
+						local targetPos = UDim2.new(
+							dragStartPos.X.Scale,
+							dragStartPos.X.Offset + delta.X,
+							dragStartPos.Y.Scale,
+							dragStartPos.Y.Offset + delta.Y
+						)
+						if useOutlineDrag then DragOutlineFrame.Position = targetPos
+						else FloatingWindow.Position = targetPos end
+					end
+				end)
+
+				releaseConn = UserInputService.InputEnded:Connect(function(endInput)
+					if endInput.UserInputType == Enum.UserInputType.MouseButton1 or endInput.UserInputType == Enum.UserInputType.Touch then
+						isDragging = false
+						moveConn:Disconnect(); releaseConn:Disconnect()
+						if useOutlineDrag then
+							DragOutlineFrame.Visible = false
+							FloatingWindow.Position = DragOutlineFrame.Position
+						end
+					end
+				end)
+			end
+		end)
+
+		local RESIZE_ICONS = {
+			Top = "rbxassetid://109778282820345", Bottom = "rbxassetid://109778282820345",
+			Left = "rbxassetid://77008116399869", Right = "rbxassetid://77008116399869",
+			TopLeftVertical = "rbxassetid://109913002781563", TopLeftHorizontal = "rbxassetid://109913002781563",
+			BottomRightVertical = "rbxassetid://109913002781563", BottomRightHorizontal = "rbxassetid://109913002781563",
+			TopRightVertical = "rbxassetid://82381353175242", TopRightHorizontal = "rbxassetid://82381353175242",
+			BottomLeftVertical = "rbxassetid://82381353175242", BottomLeftHorizontal = "rbxassetid://82381353175242"
+		}
+
+		for handleName, iconId in pairs(RESIZE_ICONS) do
+			local handle = ResizeHandles:FindFirstChild(handleName)
+			if handle then
+				handle.MouseEnter:Connect(function() if not isMinimizedState then SetResizeHoverIcon(iconId) end end)
+				handle.MouseLeave:Connect(function() SetResizeHoverIcon(nil) end)
+				handle.InputBegan:Connect(function(input)
+					if (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) and not isMinimizedState then
+						LockCursorIcon(iconId)
+					end
+				end)
+			end
+		end
+
+		local function bindHandle(handle, dirX, dirY)
+			if not handle then return end
+			handle.InputBegan:Connect(function(input)
+				if input.UserInputType == Enum.UserInputType.MouseButton1 and not isMinimizedState then
+					bringToFront()
+					local startMouse = UserInputService:GetMouseLocation()
+					local startSize = FloatingWindow.AbsoluteSize
+					local startPos = FloatingWindow.Position
+
+					local moveConn, endConn
+					moveConn = UserInputService.InputChanged:Connect(function(moveInput)
+						if moveInput.UserInputType == Enum.UserInputType.MouseMovement and not isMinimizedState then
+							bringToFront()
+							local mouseNow = UserInputService:GetMouseLocation()
+							local delta = mouseNow - startMouse
+							local newW = startSize.X; local newH = startSize.Y
+							local newPosX = startPos.X.Offset; local newPosY = startPos.Y.Offset
+
+							if dirX == 1 then newW = math.clamp(startSize.X + delta.X, minSize.X, maxSize.X)
+							elseif dirX == -1 then newW = math.clamp(startSize.X - delta.X, minSize.X, maxSize.X); newPosX = startPos.X.Offset + (startSize.X - newW) end
+
+							if dirY == 1 then newH = math.clamp(startSize.Y + delta.Y, minSize.Y, maxSize.Y)
+							elseif dirY == -1 then newH = math.clamp(startSize.Y - delta.Y, minSize.Y, maxSize.Y); newPosY = startPos.Y.Offset + (startSize.Y - newH) end
+
+							FloatingWindow.Size = UDim2.new(0, newW, 0, newH)
+							FloatingWindow.Position = UDim2.new(startPos.X.Scale, newPosX, startPos.Y.Scale, newPosY)
+						end
+					end)
+
+					endConn = UserInputService.InputEnded:Connect(function(endInput)
+						if endInput.UserInputType == Enum.UserInputType.MouseButton1 then
+							moveConn:Disconnect(); endConn:Disconnect()
+						end
+					end)
+				end
+			end)
+		end
+
+		bindHandle(ResizeHandles:FindFirstChild("Top"), 0, -1)
+		bindHandle(ResizeHandles:FindFirstChild("Bottom"), 0, 1)
+		bindHandle(ResizeHandles:FindFirstChild("Left"), -1, 0)
+		bindHandle(ResizeHandles:FindFirstChild("Right"), 1, 0)
+		bindHandle(ResizeHandles:FindFirstChild("TopLeftVertical"), -1, -1)
+		bindHandle(ResizeHandles:FindFirstChild("TopLeftHorizontal"), -1, -1)
+		bindHandle(ResizeHandles:FindFirstChild("TopRightVertical"), 1, -1)
+		bindHandle(ResizeHandles:FindFirstChild("TopRightHorizontal"), 1, -1)
+		bindHandle(ResizeHandles:FindFirstChild("BottomLeftVertical"), -1, 1)
+		bindHandle(ResizeHandles:FindFirstChild("BottomLeftHorizontal"), -1, 1)
+		bindHandle(ResizeHandles:FindFirstChild("BottomRightVertical"), 1, 1)
+		bindHandle(ResizeHandles:FindFirstChild("BottomRightHorizontal"), 1, 1)
+
+		local posNormal = UDim2.new(1, -15, 0, 3)
+		local posPressed = UDim2.new(1, -14, 0, 4)
+
+		local function SetXPressed(isPressed)
+			if isPressed then XButton.Image = ASSET_X_PRESSED; XButton.Position = posPressed
+			else XButton.Image = ASSET_X_NORMAL; XButton.Position = posNormal end
+		end
+
+		local function destroyClassicWindow()
+			for idx, win in ipairs(activeWindowsList) do
+				if win.Frame == FloatingWindow then table.remove(activeWindowsList, idx); break end
+			end
+			for idx, win in ipairs(mruWindowsList) do
+				if win.Frame == FloatingWindow then table.remove(mruWindowsList, idx); break end
+			end
+			updateClassicTaskbar()
+			FloatingWindow:Destroy()
+		end
+
+		XButton.MouseButton1Down:Connect(function()
+			local isHovered = true; local isHolding = true
+			SetXPressed(true)
+			local enterConn, leaveConn, releaseConn
+			enterConn = XButton.MouseEnter:Connect(function() if isHolding then isHovered = true; SetXPressed(true) end end)
+			leaveConn = XButton.MouseLeave:Connect(function() if isHolding then isHovered = false; SetXPressed(false) end end)
+			releaseConn = UserInputService.InputEnded:Connect(function(input)
+				if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+					isHolding = false; SetXPressed(false)
+					if enterConn then enterConn:Disconnect() end
+					if leaveConn then leaveConn:Disconnect() end
+					if releaseConn then releaseConn:Disconnect() end
+					if isHovered then destroyClassicWindow() end
+				end
+			end)
+		end)
+
+		windowRecord.Frame = FloatingWindow
+		windowRecord.TargetParent = targetParent
+		windowRecord.SetFocusVisual = setFocusVisual
+		windowRecord.GetTitle = function() return TitleText.Text end
+		windowRecord.GetIcon = function() return windowIcon end
+		windowRecord.Focus = function() bringToFront() end
+		windowRecord.Close = function() destroyClassicWindow() end
+		windowRecord.Minimize = function() setClassicMinimize(true) end
+		windowRecord.Restore = function() setClassicMinimize(false) end
+		windowRecord.IsMinimized = function() return isMinimizedState end
+		windowRecord.TaskbarContextMenu = config.TaskbarContextMenu
+
+		table.insert(activeWindowsList, windowRecord)
+		table.insert(mruWindowsList, 1, windowRecord)
+		setWindowFocusState(windowRecord)
+		updateClassicTaskbar()
+
+		local WindowAPI = {}
+		function WindowAPI:GetFrame() return FloatingWindow end
+		function WindowAPI:GetContainer() return Container end
+		function WindowAPI:GetNonUser() return NonUserGui end
+		function WindowAPI:GetCustomOpenUI() return CustomOpenGui end
+		function WindowAPI:Focus() bringToFront() end
+		function WindowAPI:SetTitle(text) TitleText.Text = tostring(text); updateClassicTaskbar() end
+		function WindowAPI:SetIcon(iconId) windowIcon = iconId; updateClassicTaskbar() end
+		function WindowAPI:SetVisible(visible) FloatingWindow.Visible = visible end
+		function WindowAPI:Close() destroyClassicWindow() end
+		function WindowAPI:Minimize() setClassicMinimize(true) end
+		function WindowAPI:Restore() setClassicMinimize(false) end
+		function WindowAPI:IsMinimized() return isMinimizedState end
+		function WindowAPI:SetPosition(pos) FloatingWindow.Position = pos end
+		function WindowAPI:SetSize(size) FloatingWindow.Size = size end
+		function WindowAPI:GetPosition() return FloatingWindow.Position end
+		function WindowAPI:GetSize() return FloatingWindow.Size end
+		function WindowAPI:ShowContextMenu(pos, items) renderContextMenuFrame(pos, items, 1) end
+		function WindowAPI:HideContextMenu() clearSubmenusFromLevel(1) end
+		function WindowAPI:BindContextMenu(guiObject, items, triggerType)
+			triggerType = triggerType or "Right"
+			if guiObject:IsA("GuiObject") then guiObject.Active = true end
+			local function triggerMenu()
+				local mousePos = UserInputService:GetMouseLocation()
+				self:ShowContextMenu(mousePos, items)
+			end
+			if guiObject:IsA("GuiButton") then
+				if triggerType == "Right" then guiObject.MouseButton2Click:Connect(triggerMenu)
+				elseif triggerType == "Left" then guiObject.MouseButton1Click:Connect(triggerMenu)
+				elseif triggerType == "Both" then guiObject.MouseButton1Click:Connect(triggerMenu); guiObject.MouseButton2Click:Connect(triggerMenu) end
+			else
+				guiObject.InputBegan:Connect(function(input)
+					local isLeft = (input.UserInputType == Enum.UserInputType.MouseButton1)
+					local isRight = (input.UserInputType == Enum.UserInputType.MouseButton2)
+					if (triggerType == "Right" and isRight) or (triggerType == "Left" and isLeft) or (triggerType == "Both" and (isLeft or isRight)) then
+						triggerMenu()
+					end
+				end)
+			end
+		end
+
+		if config.TopBarContextMenu then
+			WindowAPI:BindContextMenu(TitleBar, config.TopBarContextMenu, config.TopBarContextMenuTrigger or "Right")
+		end
+
+		return WindowAPI
+	end
+
+	----------------------------------------------------------------------------
+	-- MODERN WINDOW MODE
+	----------------------------------------------------------------------------
+	local hideMinimize = config.HideMinimize or false
+	local hideMaximize = config.HideMaximize or false
+	local hideClose = config.HideClose or false
+	local isRounded = (config.Rounded ~= false)
+	local defaultSize = config.Size or UDim2.new(0, 700, 0, 420)
+
+	local initialPos = config.Position
+	if not initialPos then
+		if targetParent ~= NonUserGui then initialPos = UDim2.new(0, 20, 0, 20)
+		else
+			local camera = workspace.CurrentCamera
+			local viewport = camera and camera.ViewportSize or Vector2.new(1920, 1080)
+			local winW = defaultSize.X.Offset > 0 and defaultSize.X.Offset or 500
+			local winH = defaultSize.Y.Offset > 0 and defaultSize.Y.Offset or 350
+			local posX = cascadeState.currentX; local posY = cascadeState.currentY
+			if posY + winH > viewport.Y - 50 then
+				cascadeState.columnStartX = cascadeState.columnStartX + cascadeState.columnStepX
+				posX = cascadeState.columnStartX; posY = cascadeState.startY
+				cascadeState.currentX = posX; cascadeState.currentY = posY
+			end
+			if posX + winW > viewport.X - 30 then
+				cascadeState.columnStartX = cascadeState.startX
+				posX = cascadeState.startX; posY = cascadeState.startY
+				cascadeState.currentX = posX; cascadeState.currentY = posY
+			end
+			cascadeState.currentX = cascadeState.currentX + cascadeState.stepX
+			cascadeState.currentY = cascadeState.currentY + cascadeState.stepY
+			initialPos = UDim2.new(0, posX, 0, posY)
+		end
+	end
+
+	local WindowState = {
+		IsMaximized = false,
+		IsMinimized = false,
+		IsClosing = false,
+		IsSnapped = nil,
+		IsFocused = true,
+		IsRounded = isRounded,
+		SavedSize = defaultSize,
+		SavedPos = initialPos,
+		MinSize = Vector2.new(240, 150)
+	}
+
+	local centerSpawnPos = UDim2.new(
+		WindowState.SavedPos.X.Scale,
+		WindowState.SavedPos.X.Offset + (WindowState.SavedSize.X.Offset * 0.5),
+		WindowState.SavedPos.Y.Scale,
+		WindowState.SavedPos.Y.Offset + (WindowState.SavedSize.Y.Offset * 0.5)
+	)
+
+	local initW = WindowState.SavedSize.X.Offset * 0.95
+	local initH = WindowState.SavedSize.Y.Offset * 0.95
+
+	local MainFrame = Instance.new("ImageButton", targetParent)
+	MainFrame.Name = "Window_" .. windowTitle
+	MainFrame.BorderSizePixel = 0
+	MainFrame.AutoButtonColor = false
+	MainFrame.BackgroundColor3 = currentTheme.MainBackground
+	MainFrame.BackgroundTransparency = 1
+	MainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+	MainFrame.Position = centerSpawnPos
+	MainFrame.Size = UDim2.new(WindowState.SavedSize.X.Scale, initW, WindowState.SavedSize.Y.Scale, initH)
+	MainFrame.ClipsDescendants = true
+	MainFrame.ZIndex = currentTopWindowZIndex
+
+	local MainCorner = Instance.new("UICorner", MainFrame)
+	MainCorner.CornerRadius = WindowState.IsRounded and UDim.new(0, 8) or UDim.new(0, 0)
+
+	local MainUIStroke = Instance.new("UIStroke", MainFrame)
+	MainUIStroke.Color = currentTheme.MainStroke
+	MainUIStroke.Transparency = 1
+
+	local TopBar = Instance.new("ImageButton", MainFrame)
+	TopBar.Name = "TopBar"
+	TopBar.BorderSizePixel = 0
+	TopBar.AutoButtonColor = false
+	TopBar.BackgroundColor3 = currentTheme.TopBarBackground
+	TopBar.BackgroundTransparency = 1
+	TopBar.Size = UDim2.new(1, 0, 0, 28)
+	TopBar.ZIndex = 5
+
+	local TopBarCorner = Instance.new("UICorner", TopBar)
+	TopBarCorner.CornerRadius = WindowState.IsRounded and UDim.new(0, 8) or UDim.new(0, 0)
+
+	local Line = Instance.new("Frame", TopBar)
+	Line.Name = "Line"
+	Line.BorderSizePixel = 0
+	Line.BackgroundColor3 = currentTheme.TopBarLine
+	Line.BackgroundTransparency = 1
+	Line.AnchorPoint = Vector2.new(0, 1)
+	Line.Size = UDim2.new(1, 0, 0, 1)
+	Line.Position = UDim2.new(0, 0, 1, 0)
+	Line.ZIndex = 6
+
+	local Fix = Instance.new("Frame", TopBar)
+	Fix.Name = "Fix"
+	Fix.BorderSizePixel = 0
+	Fix.BackgroundColor3 = currentTheme.TopBarBackground
+	Fix.BackgroundTransparency = 1
+	Fix.AnchorPoint = Vector2.new(0, 1)
+	Fix.Size = UDim2.new(1, 0, 0.5, 0)
+	Fix.Position = UDim2.new(0, 0, 1, 0)
+	Fix.ZIndex = 5
+
+	local TitleFrame = Instance.new("Frame", TopBar)
+	TitleFrame.Name = "Title"
+	TitleFrame.ZIndex = 6
+	TitleFrame.BackgroundTransparency = 1
+	TitleFrame.Size = UDim2.new(0.5, 0, 1, 0)
+
+	local TitleLayout = Instance.new("UIListLayout", TitleFrame)
+	TitleLayout.Padding = UDim.new(0, 6)
+	TitleLayout.VerticalAlignment = Enum.VerticalAlignment.Center
+	TitleLayout.FillDirection = Enum.FillDirection.Horizontal
+
+	local TitlePadding = Instance.new("UIPadding", TitleFrame)
+	TitlePadding.PaddingLeft = UDim.new(0, 8)
+
+	local IconLabel = Instance.new("ImageLabel", TitleFrame)
+	IconLabel.Name = "Icon"
+	IconLabel.ZIndex = 7
+	IconLabel.BackgroundTransparency = 1
+	IconLabel.ImageTransparency = 1
+	IconLabel.Image = windowIcon
+	IconLabel.Size = UDim2.new(0, 18, 0, 18)
+	Instance.new("UICorner", IconLabel).CornerRadius = UDim.new(0, 2)
+
+	local TitleLabel = Instance.new("TextLabel", TitleFrame)
+	TitleLabel.Name = "Title"
+	TitleLabel.ZIndex = 7
+	TitleLabel.BackgroundTransparency = 1
+	TitleLabel.TextTransparency = 1
+	TitleLabel.TextSize = 13
+	TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
+	TitleLabel.TextColor3 = currentTheme.TitleTextColor
+	TitleLabel.FontFace = Font.new("rbxassetid://12187365364", Enum.FontWeight.Medium, Enum.FontStyle.Normal)
+	TitleLabel.Text = windowTitle
+	TitleLabel.Size = UDim2.new(0, 50, 1, 0)
+	TitleLabel.AutomaticSize = Enum.AutomaticSize.X
+
+	local NavFrame = Instance.new("Frame", TopBar)
+	NavFrame.Name = "Nav"
+	NavFrame.ZIndex = 6
+	NavFrame.BackgroundTransparency = 1
+	NavFrame.AnchorPoint = Vector2.new(1, 0)
+	NavFrame.Size = UDim2.new(0.5, 0, 1, 0)
+	NavFrame.Position = UDim2.new(1, 0, 0, 0)
+
+	local NavLayout = Instance.new("UIListLayout", NavFrame)
+	NavLayout.HorizontalAlignment = Enum.HorizontalAlignment.Right
+	NavLayout.VerticalAlignment = Enum.VerticalAlignment.Center
+	NavLayout.FillDirection = Enum.FillDirection.Horizontal
+	NavLayout.SortOrder = Enum.SortOrder.LayoutOrder
+	NavLayout.Padding = UDim.new(0, 4)
+
+	local NavPadding = Instance.new("UIPadding", NavFrame)
+	NavPadding.PaddingRight = UDim.new(0, 6)
+
+	local MinBtn = Instance.new("ImageButton", NavFrame)
+	MinBtn.Name = "MinimizeButton"
+	MinBtn.ZIndex = 7
+	MinBtn.Size = UDim2.new(0, 20, 0, 20)
+	MinBtn.LayoutOrder = 1
+	MinBtn.Active = true
+	MinBtn.Visible = not hideMinimize
+	MinBtn.BackgroundTransparency = 1
+	Instance.new("UICorner", MinBtn).CornerRadius = UDim.new(0, 3)
+	local minHover = applyHoverEffect(MinBtn, currentTheme.TopBarNavDefault, currentTheme.TopBarNavHover, currentTheme.TopBarNavClick)
+
+	local MinImg = Instance.new("ImageLabel", MinBtn)
+	MinImg.ZIndex = 8
+	MinImg.BackgroundTransparency = 1
+	MinImg.ImageTransparency = 1
+	MinImg.AnchorPoint = Vector2.new(0.5, 0.5)
+	MinImg.Position = UDim2.new(0.5, 0, 0.5, 0)
+	MinImg.Size = UDim2.new(0, 14, 0, 14)
+	MinImg.Image = "rbxassetid://11293980042"
+	MinImg.ImageColor3 = currentTheme.TopBarIconColor
+
+	local MaxBtn = Instance.new("ImageButton", NavFrame)
+	MaxBtn.Name = "MaximizeButton"
+	MaxBtn.ZIndex = 7
+	MaxBtn.Size = UDim2.new(0, 20, 0, 20)
+	MaxBtn.LayoutOrder = 2
+	MaxBtn.Active = true
+	MaxBtn.Visible = not hideMaximize
+	MaxBtn.BackgroundTransparency = 1
+	Instance.new("UICorner", MaxBtn).CornerRadius = UDim.new(0, 3)
+	local maxHover = applyHoverEffect(MaxBtn, currentTheme.TopBarNavDefault, currentTheme.TopBarNavHover, currentTheme.TopBarNavClick)
+
+	local MaxImg = Instance.new("ImageLabel", MaxBtn)
+	MaxImg.ZIndex = 8
+	MaxImg.BackgroundTransparency = 1
+	MaxImg.ImageTransparency = 1
+	MaxImg.AnchorPoint = Vector2.new(0.5, 0.5)
+	MaxImg.Position = UDim2.new(0.5, 0, 0.5, 0)
+	MaxImg.Size = UDim2.new(0, 14, 0, 14)
+	MaxImg.Image = "rbxassetid://11293980310"
+	MaxImg.ImageColor3 = currentTheme.TopBarIconColor
+
+	local CloseBtn = Instance.new("ImageButton", NavFrame)
+	CloseBtn.Name = "CloseButton"
+	CloseBtn.ZIndex = 7
+	CloseBtn.Size = UDim2.new(0, 20, 0, 20)
+	CloseBtn.LayoutOrder = 3
+	CloseBtn.Active = true
+	CloseBtn.Visible = not hideClose
+	CloseBtn.BackgroundTransparency = 1
+	Instance.new("UICorner", CloseBtn).CornerRadius = UDim.new(0, 3)
+	local closeHover = applyHoverEffect(CloseBtn, currentTheme.TopBarNavDefault, Color3.fromRGB(232, 17, 35), Color3.fromRGB(160, 0, 15))
+
+	local CloseImg = Instance.new("ImageLabel", CloseBtn)
+	CloseImg.ZIndex = 8
+	CloseImg.BackgroundTransparency = 1
+	CloseImg.ImageTransparency = 1
+	CloseImg.AnchorPoint = Vector2.new(0.5, 0.5)
+	CloseImg.Position = UDim2.new(0.5, 0, 0.5, 0)
+	CloseImg.Size = UDim2.new(0, 14, 0, 14)
+	CloseImg.Image = "rbxassetid://11293981586"
+	CloseImg.ImageColor3 = currentTheme.TopBarIconColor
+
+	CloseBtn.MouseEnter:Connect(function() CloseImg.ImageColor3 = Color3.fromRGB(255, 255, 255) end)
+	CloseBtn.MouseLeave:Connect(function() CloseImg.ImageColor3 = currentTheme.TopBarIconColor end)
+
+	local Non_Container = Instance.new("Frame", MainFrame)
+	Non_Container.Name = "Non_Container"
+	Non_Container.BackgroundTransparency = 1
+	Non_Container.Size = UDim2.new(1, 0, 1, -28)
+	Non_Container.Position = UDim2.new(0, 0, 0, 28)
+	Non_Container.ZIndex = 2
+	Non_Container.Visible = false
+
+	local openTween = TweenService:Create(MainFrame, TWEEN_INFO_OPEN, {Size = WindowState.SavedSize, BackgroundTransparency = 0})
+	openTween:Play()
+	TweenService:Create(MainUIStroke, TWEEN_INFO_OPEN, {Transparency = 0}):Play()
+	TweenService:Create(TopBar, TWEEN_INFO_OPEN, {BackgroundTransparency = 0}):Play()
+	TweenService:Create(Line, TWEEN_INFO_OPEN, {BackgroundTransparency = 0}):Play()
+	TweenService:Create(Fix, TWEEN_INFO_OPEN, {BackgroundTransparency = 0}):Play()
+	TweenService:Create(TitleLabel, TWEEN_INFO_OPEN, {TextTransparency = 0}):Play()
+	TweenService:Create(IconLabel, TWEEN_INFO_OPEN, {ImageTransparency = 0}):Play()
+	TweenService:Create(MinBtn, TWEEN_INFO_OPEN, {BackgroundTransparency = 0}):Play()
+	TweenService:Create(MinImg, TWEEN_INFO_OPEN, {ImageTransparency = 0}):Play()
+	TweenService:Create(MaxBtn, TWEEN_INFO_OPEN, {BackgroundTransparency = 0}):Play()
+	TweenService:Create(MaxImg, TWEEN_INFO_OPEN, {ImageTransparency = 0}):Play()
+	TweenService:Create(CloseBtn, TWEEN_INFO_OPEN, {BackgroundTransparency = 0}):Play()
+	TweenService:Create(CloseImg, TWEEN_INFO_OPEN, {ImageTransparency = 0}):Play()
+
+	openTween.Completed:Connect(function()
+		if not WindowState.IsClosing and not WindowState.IsMinimized then
+			MainFrame.AnchorPoint = Vector2.new(0, 0)
+			MainFrame.Position = WindowState.SavedPos
+			MainFrame.Size = WindowState.SavedSize
+			Non_Container.Visible = true
+		end
+	end)
+
+	local windowRecord = {}
+
+	local function setFocusVisual(isFocused)
+		WindowState.IsFocused = isFocused
+		local titleColor = isFocused and currentTheme.TitleTextColor or currentTheme.ContextItemTextDisabled
+		local iconColor = isFocused and currentTheme.TopBarIconColor or currentTheme.ContextItemTextDisabled
+
+		TweenService:Create(TitleLabel, TWEEN_INFO_SMOOTH, {TextColor3 = titleColor}):Play()
+		TweenService:Create(MinImg, TWEEN_INFO_SMOOTH, {ImageColor3 = iconColor}):Play()
+		TweenService:Create(MaxImg, TWEEN_INFO_SMOOTH, {ImageColor3 = iconColor}):Play()
+		TweenService:Create(CloseImg, TWEEN_INFO_SMOOTH, {ImageColor3 = iconColor}):Play()
+	end
+
+	local function bringToFront()
+		if MainFrame.ZIndex < currentTopWindowZIndex then
+			currentTopWindowZIndex = currentTopWindowZIndex + 1
+			MainFrame.ZIndex = currentTopWindowZIndex
+		end
+		setWindowFocusState(windowRecord)
+	end
+
+	MainFrame.InputBegan:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.MouseButton2 or input.UserInputType == Enum.UserInputType.Touch then
+			bringToFront()
+		end
+	end)
+
+	local function setMaximizeState(maximized)
+		if WindowState.IsMinimized then return end
+		WindowState.IsMaximized = maximized
+		WindowState.IsSnapped = nil
+		if maximized then
+			WindowState.SavedSize = MainFrame.Size
+			WindowState.SavedPos = MainFrame.Position
+			MinBtn.Active = false
+			MinImg.ImageTransparency = 0.5
+			TweenService:Create(MainFrame, TWEEN_INFO_SMOOTH, {Position = UDim2.new(0, 0, 0, 0), Size = UDim2.new(1, 0, 1, 0)}):Play()
+		else
+			MinBtn.Active = true
+			MinImg.ImageTransparency = 0
+			TweenService:Create(MainFrame, TWEEN_INFO_SMOOTH, {Position = WindowState.SavedPos, Size = WindowState.SavedSize}):Play()
+		end
+	end
+
+	local lastTopBarClick = 0
+	TopBar.InputBegan:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1 then
+			local now = tick()
+			if now - lastTopBarClick < 0.28 and not WindowState.IsMinimized and not hideMaximize then
+				setMaximizeState(not WindowState.IsMaximized)
+				lastTopBarClick = 0
+			else
+				lastTopBarClick = now
+			end
+		end
+	end)
+
+	local dragging = false
+	local dragInput, dragStart, startPos
+	local snapTarget = nil
+
+	local function setMinimizeState(minimize)
+		if WindowState.IsMaximized then return end
+		WindowState.IsMinimized = minimize
+
+		if minimize then
+			WindowState.SavedSize = MainFrame.Size
+			WindowState.SavedPos = MainFrame.Position
+			Line.Visible = false
+			Fix.Visible = false
+			MaxBtn.Active = false
+			MaxImg.ImageTransparency = 0.5
+			Non_Container.Visible = false
+			table.insert(minimizedWindowsList, windowRecord)
+			updateMinimizedGrid()
+		else
+			for idx, win in ipairs(minimizedWindowsList) do
+				if win == windowRecord then table.remove(minimizedWindowsList, idx); break end
+			end
+			updateMinimizedGrid()
+			Non_Container.Visible = true
+			Line.Visible = true
+			Fix.Visible = true
+			MaxBtn.Active = true
+			MaxImg.ImageTransparency = 0
+			TweenService:Create(MainFrame, TWEEN_INFO_SMOOTH, {Position = WindowState.SavedPos, Size = WindowState.SavedSize}):Play()
+			bringToFront()
+		end
+	end
+
+	TopBar.InputBegan:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.MouseButton2 or input.UserInputType == Enum.UserInputType.Touch then
+			bringToFront()
+		end
+
+		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+			if WindowState.IsMinimized then setMinimizeState(false); return end
+
+			local useOutlineDrag = (config.OutlineDrag ~= nil) and config.OutlineDrag or isGlobalOutlineDrag
+
+			dragging = true
+			dragStart = input.Position
+			startPos = MainFrame.Position
+
+			if useOutlineDrag then
+				DragOutlineFrame.Size = MainFrame.Size
+				DragOutlineFrame.Position = MainFrame.Position
+				DragOutlineFrame.Visible = true
+			end
+
+			input.Changed:Connect(function()
+				if input.UserInputState == Enum.UserInputState.End then
+					if dragging then
+						dragging = false
+						hideSnapGhost()
+						if useOutlineDrag then DragOutlineFrame.Visible = false end
+
+						if snapTarget == "Top" then setMaximizeState(true)
+						elseif snapTarget == "Left" then
+							WindowState.IsSnapped = "Left"
+							WindowState.SavedPos = startPos
+							WindowState.SavedSize = MainFrame.Size
+							TweenService:Create(MainFrame, TWEEN_INFO_SMOOTH, {Position = UDim2.new(0, 0, 0, 0), Size = UDim2.new(0.5, 0, 1, 0)}):Play()
+						elseif snapTarget == "Right" then
+							WindowState.IsSnapped = "Right"
+							WindowState.SavedPos = startPos
+							WindowState.SavedSize = MainFrame.Size
+							TweenService:Create(MainFrame, TWEEN_INFO_SMOOTH, {Position = UDim2.new(0.5, 0, 0, 0), Size = UDim2.new(0.5, 0, 1, 0)}):Play()
+						else
+							if useOutlineDrag then MainFrame.Position = DragOutlineFrame.Position end
+						end
+						snapTarget = nil
+					end
+				end
+			end)
+		end
+	end)
+
+	TopBar.InputChanged:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+			dragInput = input
+		end
+	end)
+
+	UserInputService.InputChanged:Connect(function(input)
+		if input == dragInput and dragging and not WindowState.IsMinimized then
+			local delta = input.Position - dragStart
+			local useOutlineDrag = (config.OutlineDrag ~= nil) and config.OutlineDrag or isGlobalOutlineDrag
+
+			if WindowState.IsMaximized or WindowState.IsSnapped then
+				WindowState.IsMaximized = false; WindowState.IsSnapped = nil
+				MinBtn.Active = true; MinImg.ImageTransparency = 0
+				local parentW = targetParent.AbsoluteSize.X > 0 and targetParent.AbsoluteSize.X or (workspace.CurrentCamera and workspace.CurrentCamera.ViewportSize.X or 1920)
+				local ratioX = (input.Position.X) / parentW
+				local targetW = WindowState.SavedSize.X.Offset
+				startPos = UDim2.new(0, input.Position.X - (targetW * ratioX), 0, input.Position.Y - 14)
+				MainFrame.Size = WindowState.SavedSize
+				if useOutlineDrag then DragOutlineFrame.Size = WindowState.SavedSize end
+			end
+
+			local newX = startPos.X.Offset + delta.X
+			local newY = startPos.Y.Offset + delta.Y
+			local targetPos = UDim2.new(startPos.X.Scale, newX, startPos.Y.Scale, newY)
+
+			if useOutlineDrag then DragOutlineFrame.Position = targetPos
+			else MainFrame.Position = targetPos end
+
+			if targetParent == NonUserGui then
+				local camera = workspace.CurrentCamera
+				local viewport = camera and camera.ViewportSize or Vector2.new(1920, 1080)
+				local mousePos = UserInputService:GetMouseLocation()
+				if mousePos.Y <= 6 then
+					snapTarget = "Top"
+					showSnapGhost(UDim2.new(0, 6, 0, 6), UDim2.new(1, -12, 1, -12))
+				elseif mousePos.X <= 6 then
+					snapTarget = "Left"
+					showSnapGhost(UDim2.new(0, 6, 0, 6), UDim2.new(0.5, -9, 1, -12))
+				elseif mousePos.X >= viewport.X - 6 then
+					snapTarget = "Right"
+					showSnapGhost(UDim2.new(0.5, 3, 0, 6), UDim2.new(0.5, -9, 1, -12))
+				else
+					snapTarget = nil
+					hideSnapGhost()
+				end
+			end
+		end
+	end)
+
+	local handles = {
+		Top = {Size = UDim2.new(1, -16, 0, 6), Pos = UDim2.new(0, 8, 0, -3)},
+		Bottom = {Size = UDim2.new(1, -16, 0, 6), Pos = UDim2.new(0, 8, 1, -3)},
+		Left = {Size = UDim2.new(0, 6, 1, -16), Pos = UDim2.new(0, -3, 0, 8)},
+		Right = {Size = UDim2.new(0, 6, 1, -16), Pos = UDim2.new(1, -3, 0, 8)},
+		TopLeft = {Size = UDim2.new(0, 10, 0, 10), Pos = UDim2.new(0, -3, 0, -3)},
+		TopRight = {Size = UDim2.new(0, 10, 0, 10), Pos = UDim2.new(1, -7, 0, -3)},
+		BottomLeft = {Size = UDim2.new(0, 10, 0, 10), Pos = UDim2.new(0, -3, 1, -7)},
+		BottomRight = {Size = UDim2.new(0, 10, 0, 10), Pos = UDim2.new(1, -7, 1, -7)}
+	}
+
+	for name, info in pairs(handles) do
+		local handle = Instance.new("ImageButton", MainFrame)
+		handle.Name = "Resize_" .. name
+		handle.BackgroundTransparency = 1
+		handle.BorderSizePixel = 0
+		handle.Size = info.Size
+		handle.Position = info.Pos
+		handle.ZIndex = 4
+
+		local resizing = false
+		local resizeStart, startFramePos, startFrameSize
+		local lastInnerResizeTick = 0
+
+		handle.InputBegan:Connect(function(input)
+			if WindowState.IsMaximized or WindowState.IsMinimized then return end
+			if input.UserInputType == Enum.UserInputType.MouseButton1 then
+				bringToFront()
+				resizing = true
+				resizeStart = input.Position
+				startFramePos = MainFrame.Position
+				startFrameSize = MainFrame.Size
+				lastInnerResizeTick = tick()
+				Non_Container.Size = UDim2.new(0, startFrameSize.X.Offset, 0, startFrameSize.Y.Offset - 28)
+
+				input.Changed:Connect(function()
+					if input.UserInputState == Enum.UserInputState.End then
+						resizing = false
+						Non_Container.Size = UDim2.new(1, 0, 1, -28)
+					end
+				end)
+			end
+		end)
+
+		UserInputService.InputChanged:Connect(function(input)
+			if resizing and input.UserInputType == Enum.UserInputType.MouseMovement and not WindowState.IsMaximized and not WindowState.IsMinimized then
+				local delta = input.Position - resizeStart
+				local startW = startFrameSize.X.Offset; local startH = startFrameSize.Y.Offset
+				local startX = startFramePos.X.Offset; local startY = startFramePos.Y.Offset
+
+				local newW = startW; local newH = startH
+				local newX = startX; local newY = startY
+
+				if name:find("Right") then newW = math.max(WindowState.MinSize.X, startW + delta.X)
+				elseif name:find("Left") then newW = math.max(WindowState.MinSize.X, startW - delta.X); newX = startX - (newW - startW) end
+
+				if name:find("Bottom") then newH = math.max(WindowState.MinSize.Y, startH + delta.Y)
+				elseif name:find("Top") then newH = math.max(WindowState.MinSize.Y, startH - delta.Y); newY = startY - (newH - startH) end
+
+				MainFrame.Size = UDim2.new(startFrameSize.X.Scale, newW, startFrameSize.Y.Scale, newH)
+				MainFrame.Position = UDim2.new(startFramePos.X.Scale, newX, startFramePos.Y.Scale, newY)
+
+				if tick() - lastInnerResizeTick >= 0.045 then
+					lastInnerResizeTick = tick()
+					Non_Container.Size = UDim2.new(0, newW, 0, newH - 28)
+				end
+			end
+		end)
+	end
+
+	local function destroyWindow()
+		for idx, win in ipairs(activeWindowsList) do
+			if win.Frame == MainFrame then table.remove(activeWindowsList, idx); break end
+		end
+		for idx, win in ipairs(minimizedWindowsList) do
+			if win.Frame == MainFrame then table.remove(minimizedWindowsList, idx); break end
+		end
+		updateMinimizedGrid()
+		for idx, win in ipairs(mruWindowsList) do
+			if win.Frame == MainFrame then table.remove(mruWindowsList, idx); break end
+		end
+		if currentlyFocusedWindow == windowRecord then
+			currentlyFocusedWindow = nil
+			if #activeWindowsList > 0 then setWindowFocusState(activeWindowsList[#activeWindowsList]) end
+		end
+		MainFrame:Destroy()
+	end
+
+	CloseBtn.MouseButton1Click:Connect(function()
+		if WindowState.IsClosing then return end
+		WindowState.IsClosing = true
+		Non_Container.Visible = false
+
+		local curPos = MainFrame.Position; local curSize = MainFrame.Size
+		MainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+		MainFrame.Position = UDim2.new(
+			curPos.X.Scale, curPos.X.Offset + (curSize.X.Offset * 0.5),
+			curPos.Y.Scale, curPos.Y.Offset + (curSize.Y.Offset * 0.5)
+		)
+
+		local closeTargetSize = UDim2.new(curSize.X.Scale, curSize.X.Offset * 0.95, curSize.Y.Scale, curSize.Y.Offset * 0.95)
+		TweenService:Create(MainFrame, TWEEN_INFO_CLOSE, {Size = closeTargetSize, BackgroundTransparency = 1}):Play()
+		TweenService:Create(MainUIStroke, TWEEN_INFO_CLOSE, {Transparency = 1}):Play()
+
+		for _, descendant in ipairs(MainFrame:GetDescendants()) do
+			if descendant:IsA("TextLabel") or descendant:IsA("TextButton") or descendant:IsA("TextBox") then
+				TweenService:Create(descendant, TWEEN_INFO_CLOSE, {TextTransparency = 1}):Play()
+			elseif descendant:IsA("ImageLabel") or descendant:IsA("ImageButton") then
+				TweenService:Create(descendant, TWEEN_INFO_CLOSE, {ImageTransparency = 1, BackgroundTransparency = 1}):Play()
+			elseif descendant:IsA("Frame") then
+				TweenService:Create(descendant, TWEEN_INFO_CLOSE, {BackgroundTransparency = 1}):Play()
+			elseif descendant:IsA("UIStroke") then
+				TweenService:Create(descendant, TWEEN_INFO_CLOSE, {Transparency = 1}):Play()
+			end
+		end
+
+		task.delay(0.16, function() destroyWindow() end)
+	end)
+
+	MinBtn.MouseButton1Click:Connect(function()
+		if not MinBtn.Active or WindowState.IsMaximized then return end
+		setMinimizeState(not WindowState.IsMinimized)
+	end)
+
+	MaxBtn.MouseButton1Click:Connect(function()
+		if not MaxBtn.Active or WindowState.IsMinimized then return end
+		setMaximizeState(not WindowState.IsMaximized)
+	end)
+
+	local function setWindowRounded(rounded)
+		WindowState.IsRounded = rounded
+		local rad = rounded and UDim.new(0, 8) or UDim.new(0, 0)
+		MainCorner.CornerRadius = rad; TopBarCorner.CornerRadius = rad
+	end
+
+	local function updateWindowTheme(theme)
+		if theme.Type == "Classic" then return end
+		TweenService:Create(MainFrame, TWEEN_INFO_THEME, {BackgroundColor3 = theme.MainBackground}):Play()
+		TweenService:Create(MainUIStroke, TWEEN_INFO_THEME, {Color = theme.MainStroke}):Play()
+		TweenService:Create(TopBar, TWEEN_INFO_THEME, {BackgroundColor3 = theme.TopBarBackground}):Play()
+		TweenService:Create(Fix, TWEEN_INFO_THEME, {BackgroundColor3 = theme.TopBarBackground}):Play()
+		TweenService:Create(Line, TWEEN_INFO_THEME, {BackgroundColor3 = theme.TopBarLine}):Play()
+		TweenService:Create(TitleLabel, TWEEN_INFO_THEME, {TextColor3 = theme.TitleTextColor}):Play()
+
+		minHover.UpdateColors(theme.TopBarNavDefault, theme.TopBarNavHover, theme.TopBarNavClick)
+		maxHover.UpdateColors(theme.TopBarNavDefault, theme.TopBarNavHover, theme.TopBarNavClick)
+		closeHover.UpdateColors(theme.TopBarNavDefault, Color3.fromRGB(232, 17, 35), Color3.fromRGB(160, 0, 15))
+
+		TweenService:Create(MinImg, TWEEN_INFO_THEME, {ImageColor3 = theme.TopBarIconColor}):Play()
+		TweenService:Create(MaxImg, TWEEN_INFO_THEME, {ImageColor3 = theme.TopBarIconColor}):Play()
+		TweenService:Create(CloseImg, TWEEN_INFO_THEME, {ImageColor3 = theme.TopBarIconColor}):Play()
+	end
+
+	windowRecord.Frame = MainFrame
+	windowRecord.TargetParent = targetParent
+	windowRecord.UpdateTheme = updateWindowTheme
+	windowRecord.SetFocusVisual = setFocusVisual
+	windowRecord.SetRounded = setWindowRounded
+	windowRecord.GetTitle = function() return TitleLabel.Text end
+	windowRecord.GetIcon = function() return IconLabel.Image end
+	windowRecord.Focus = function() bringToFront() end
+	windowRecord.Minimize = function() setMinimizeState(true) end
+	windowRecord.Restore = function() setMinimizeState(false) end
+	windowRecord.IsMinimized = function() return WindowState.IsMinimized end
+
+	table.insert(activeWindowsList, windowRecord)
+	table.insert(mruWindowsList, 1, windowRecord)
+	setWindowFocusState(windowRecord)
+
+	local WindowAPI = {}
+	function WindowAPI:GetFrame() return MainFrame end
+	function WindowAPI:GetContainer() return Non_Container end
+	function WindowAPI:GetNonUser() return NonUserGui end
+	function WindowAPI:GetCustomOpenUI() return CustomOpenGui end
+	function WindowAPI:Focus() bringToFront() end
+	function WindowAPI:SetTitle(text) TitleLabel.Text = tostring(text) end
+	function WindowAPI:SetIcon(iconId) IconLabel.Image = tostring(iconId) end
+	function WindowAPI:SetVisible(visible) MainFrame.Visible = visible end
+	function WindowAPI:SetRounded(rounded) setWindowRounded(rounded) end
+	function WindowAPI:Close() destroyWindow() end
+	function WindowAPI:Minimize() setMinimizeState(true) end
+	function WindowAPI:Restore() setMinimizeState(false) end
+
+	function WindowAPI:SetPosition(targetPos, animated, customTweenInfo)
+		local finalPos = targetPos
+		if typeof(targetPos) == "Vector2" then finalPos = UDim2.new(0, targetPos.X, 0, targetPos.Y)
+		elseif typeof(targetPos) ~= "UDim2" then return end
+		WindowState.SavedPos = finalPos
+		if not WindowState.IsMaximized and not WindowState.IsMinimized then
+			if animated then TweenService:Create(MainFrame, customTweenInfo or TWEEN_INFO_SMOOTH, {Position = finalPos}):Play()
+			else MainFrame.Position = finalPos end
+		end
+	end
+
+	function WindowAPI:MoveTo(targetPos, animated, customTweenInfo) self:SetPosition(targetPos, animated, customTweenInfo) end
+	function WindowAPI:GetPosition() return MainFrame.Position end
+
+	function WindowAPI:SetSize(targetSize, animated, customTweenInfo)
+		local finalSize = targetSize
+		if typeof(targetSize) == "Vector2" then finalSize = UDim2.new(0, targetSize.X, 0, targetSize.Y)
+		elseif typeof(targetSize) ~= "UDim2" then return end
+		WindowState.SavedSize = finalSize
+		if not WindowState.IsMaximized and not WindowState.IsMinimized then
+			if animated then TweenService:Create(MainFrame, customTweenInfo or TWEEN_INFO_SMOOTH, {Size = finalSize}):Play()
+			else MainFrame.Size = finalSize end
+		end
+	end
+
+	function WindowAPI:GetSize() return MainFrame.Size end
+	function WindowAPI:ShowContextMenu(position, items) renderContextMenuFrame(position, items, 1) end
+	function WindowAPI:HideContextMenu() clearSubmenusFromLevel(1) end
+	function WindowAPI:BindContextMenu(guiObject, items, triggerType)
+		triggerType = triggerType or "Right"
+		if guiObject:IsA("GuiObject") then guiObject.Active = true end
+		local function triggerMenu()
+			local mousePos = UserInputService:GetMouseLocation()
+			self:ShowContextMenu(mousePos, items)
+		end
+
+		if guiObject:IsA("GuiButton") then
+			if triggerType == "Right" then guiObject.MouseButton2Click:Connect(triggerMenu)
+			elseif triggerType == "Left" then guiObject.MouseButton1Click:Connect(triggerMenu)
+			elseif triggerType == "Both" then guiObject.MouseButton1Click:Connect(triggerMenu); guiObject.MouseButton2Click:Connect(triggerMenu) end
+		else
+			guiObject.InputBegan:Connect(function(input)
+				local isLeft = (input.UserInputType == Enum.UserInputType.MouseButton1)
+				local isRight = (input.UserInputType == Enum.UserInputType.MouseButton2)
+				if (triggerType == "Right" and isRight) or (triggerType == "Left" and isLeft) or (triggerType == "Both" and (isLeft or isRight)) then
+					triggerMenu()
+				end
+			end)
+		end
+	end
+
+	if config.TopBarContextMenu then
+		WindowAPI:BindContextMenu(TopBar, config.TopBarContextMenu, config.TopBarContextMenuTrigger or "Right")
+	end
+
+	return WindowAPI
+end
+
+--------------------------------------------------------------------------------
+-- GLOBAL THEME & RESET HỆ THỐNG AN TOÀN
+--------------------------------------------------------------------------------
+function Library:SetTheme(themeName)
+	if type(themeName) ~= "string" then return end
+	local lower = string.lower(themeName)
+	local targetName = "Dark"
+
+	if lower == "light" or lower == "trang" or lower == "sáng" or lower == "sang" then targetName = "Light"
+	elseif lower == "dark" or lower == "den" or lower == "tối" or lower == "toi" then targetName = "Dark"
+	elseif lower == "classic" or lower == "retro" or lower == "2016" or lower == "codien" or lower == "cổ điển" then targetName = "Classic" end
+
+	local oldThemeName = currentThemeName
+	local isTransitioningArchetype = (Themes[oldThemeName].Type ~= Themes[targetName].Type)
+
+	currentThemeName = targetName
+	currentTheme = Themes[targetName]
+
+	if isTransitioningArchetype then
+		-- 1. HỦY DỨT ĐIỂM (INSTANT DESTROY) toàn bộ GUI cửa sổ cũ, không chờ Tween animation
+		for _, win in ipairs(activeWindowsList) do
+			if win.Frame and win.Frame.Parent then
+				win.Frame:Destroy() -- Xóa thẳng GUI cũ ngay lập tức
+			end
+		end
+
+		-- 2. Dọn sạch toàn bộ danh sách trạng thái
+		activeWindowsList = {}
+		minimizedWindowsList = {}
+		mruWindowsList = {}
+		desktopMinimizedStack = {}
+		currentlyFocusedWindow = nil
+
+		-- 3. Xử lý thanh Taskbar
+		if targetName == "Classic" then
+			updateClassicTaskbar()
+		else
+			ClassicTaskbar.Visible = false
+			UnHideTaskbar.Visible = false
+		end
+
+		-- 4. TỰ ĐỘNG TẠO LẠI (AUTO-REBUILD) TOÀN BỘ CỬA SỔ THEO THEME MỚI
+		local oldRegistry = registeredWindowsRegistry
+		registeredWindowsRegistry = {} -- Reset để tránh bị duplicate khi CreateWindow lại
+
+		for _, item in ipairs(oldRegistry) do
+			local savedConfig = item.Config
+			savedConfig._isRebuilding = true -- Cờ báo hiệu đang rebuild
+			
+			local newWinAPI = Library:CreateWindow(savedConfig)
+			
+			-- Nếu có hàm Builder vẽ nội dung, tự động gọi lại để vẽ vào Container mới
+			if item.Builder and type(item.Builder) == "function" then
+				item.Builder(newWinAPI:GetContainer(), newWinAPI)
+			end
+			
+			savedConfig._isRebuilding = nil
+			table.insert(registeredWindowsRegistry, item)
+		end
+	else
+		-- Nếu chỉ đổi giữa Dark và Light (cùng kiến trúc Modern) thì chỉ cần update màu sắc
+		for _, win in ipairs(activeWindowsList) do
+			if win and win.UpdateTheme then win.UpdateTheme(currentTheme) end
+		end
+		if targetName == "Classic" then updateClassicTaskbar() end
+	end
+
+	Library.OnThemeChanged:Fire(targetName, isTransitioningArchetype)
+end
+
+function Library:GetTheme() return currentThemeName end
+function Library:SetRounded(rounded)
+	for _, win in ipairs(activeWindowsList) do
+		if win and win.SetRounded then win.SetRounded(rounded) end
+	end
+end
+
+function Library:SetOutlineDrag(enabled) isGlobalOutlineDrag = (enabled == true) end
+function Library:GetOutlineDrag() return isGlobalOutlineDrag end
+function Library:GetNonUser() return NonUserGui end
+function Library:GetCustomOpenUI() return CustomOpenGui end
+function Library:GetContextMenuGui() return ContextMenuGui end
+
+--------------------------------------------------------------------------------
+-- PROMPT WINDOW
+--------------------------------------------------------------------------------
+function Library:Prompt(config)
+	config = config or {}
+	local title = config.Title or "Thông Báo"
+	local message = config.Message or "Bạn có chắc chắn muốn thực hiện hành động này?"
+	local buttons = config.Buttons or { { Text = "OK" } }
+	local width = config.Width or 290
+	local height = config.Height or 135
+	local iconAsset = config.Icon
+
+	local win = Library:CreateWindow({
+		Title = title,
+		Size = UDim2.new(0, width, 0, height),
+		Position = UDim2.new(0.5, -width / 2, 0.5, -height / 2),
+		MinSize = Vector2.new(width, height),
+		MaxSize = Vector2.new(width, height)
+	})
+
+	local container = win:GetContainer()
+	local isClassic = (currentThemeName == "Classic")
+
+	local hasIcon = (iconAsset and iconAsset ~= "")
+	if hasIcon then
+		local iconImg = Instance.new("ImageLabel", container)
+		iconImg.Name = "PromptIcon"
+		iconImg.Size = UDim2.new(0, 32, 0, 32)
+		iconImg.Position = UDim2.new(0, 10, 0, 10)
+		iconImg.BackgroundTransparency = 1
+		iconImg.Image = iconAsset
+	end
+
+	local msgLabel = Instance.new("TextLabel", container)
+	msgLabel.Name = "Message"
+	msgLabel.Size = UDim2.new(1, hasIcon and -58 or -20, 1, -48)
+	msgLabel.Position = UDim2.new(0, hasIcon and 48 or 10, 0, 8)
+	msgLabel.BackgroundTransparency = 1
+	msgLabel.Font = Enum.Font.SourceSans
+	msgLabel.TextSize = 14
+	msgLabel.TextColor3 = isClassic and Color3.fromRGB(0, 0, 0) or currentTheme.TitleTextColor
+	msgLabel.TextXAlignment = Enum.TextXAlignment.Left
+	msgLabel.TextYAlignment = Enum.TextYAlignment.Top
+	msgLabel.TextWrapped = true
+	msgLabel.Text = message
+
+	local btnBar = Instance.new("Frame", container)
+	btnBar.Name = "ButtonBar"
+	btnBar.Size = UDim2.new(1, -20, 0, 26)
+	btnBar.Position = UDim2.new(0, 10, 1, -32)
+	btnBar.BackgroundTransparency = 1
+
+	local btnCount = math.min(#buttons, 2)
+	local btnWidth = 75; local btnHeight = 23; local gap = 8
+
+	for i = 1, btnCount do
+		local btnData = buttons[i]
+		local btnText = btnData.Text or (i == 1 and "OK" or "Cancel")
+
+		local posX
+		if btnCount == 1 then posX = UDim2.new(0.5, -btnWidth / 2, 0, 0)
+		else
+			local totalWidth = (btnWidth * 2) + gap
+			if i == 1 then posX = UDim2.new(1, -totalWidth, 0, 0)
+			else posX = UDim2.new(1, -btnWidth, 0, 0) end
+		end
+
+		if isClassic then
+			Library:Create3DButton(btnBar, btnText, UDim2.new(0, btnWidth, 0, btnHeight), posX, function()
+				win:Close()
+				if btnData.Callback then btnData.Callback() end
+			end)
+		else
+			local btn = Instance.new("TextButton", btnBar)
+			btn.Size = UDim2.new(0, btnWidth, 0, btnHeight)
+			btn.Position = posX
+			btn.BackgroundColor3 = (i == 1) and Color3.fromRGB(0, 120, 215) or Color3.fromRGB(60, 60, 60)
+			btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+			btn.Font = Enum.Font.SourceSansSemibold
+			btn.TextSize = 13
+			btn.Text = btnText
+			btn.BorderSizePixel = 0
+			Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 4)
+
+			btn.MouseButton1Click:Connect(function()
+				win:Close()
+				if btnData.Callback then btnData.Callback() end
+			end)
+		end
+	end
+
+	return win
+end
+
+--------------------------------------------------------------------------------
+-- TOAST NOTIFICATION
+--------------------------------------------------------------------------------
+function Library:Notify(config)
+	config = config or {}
+	local title = config.Title or "Notification"
+	local sub = config.Subtitle or ""
+	local duration = config.Duration or 4
+	local iconAsset = config.Icon
+
+	local NotiFrame = Instance.new("Frame", NotificationGui)
+	NotiFrame.Name = "Template_Noti"
+	NotiFrame.BorderSizePixel = 0
+	NotiFrame.BackgroundColor3 = currentTheme.NotiBackground
+	NotiFrame.Size = UDim2.new(0, 280, 0, 0)
+	NotiFrame.AutomaticSize = Enum.AutomaticSize.Y
+	Instance.new("UICorner", NotiFrame).CornerRadius = UDim.new(0, 6)
+
+	local Stroke = Instance.new("UIStroke", NotiFrame)
+	Stroke.Color = currentTheme.NotiStroke
+
+	local Padding = Instance.new("UIPadding", NotiFrame)
+	Padding.PaddingTop = UDim.new(0, 10); Padding.PaddingBottom = UDim.new(0, 10)
+	Padding.PaddingLeft = UDim.new(0, 12); Padding.PaddingRight = UDim.new(0, 12)
+
+	local ContentFrame = Instance.new("Frame", NotiFrame)
+	ContentFrame.BackgroundTransparency = 1
+	ContentFrame.Size = UDim2.new(1, 0, 0, 0)
+	ContentFrame.AutomaticSize = Enum.AutomaticSize.Y
+
+	local ContentLayout = Instance.new("UIListLayout", ContentFrame)
+	ContentLayout.FillDirection = Enum.FillDirection.Horizontal
+	ContentLayout.VerticalAlignment = Enum.VerticalAlignment.Center
+	ContentLayout.SortOrder = Enum.SortOrder.LayoutOrder
+	ContentLayout.Padding = UDim.new(0, 10)
+
+	if iconAsset and iconAsset ~= "" then
+		local Icon = Instance.new("ImageLabel", ContentFrame)
+		Icon.Name = "ICON"
+		Icon.BackgroundTransparency = 1
+		Icon.LayoutOrder = 1
+		Icon.Size = UDim2.new(0, 36, 0, 36)
+		Icon.Image = iconAsset
+		Instance.new("UICorner", Icon).CornerRadius = UDim.new(0, 4)
+	end
+
+	local MainNoti = Instance.new("Frame", ContentFrame)
+	MainNoti.Name = "MainNoti"
+	MainNoti.BackgroundTransparency = 1
+	MainNoti.LayoutOrder = 2
+	MainNoti.Size = UDim2.new(1, (iconAsset and iconAsset ~= "") and -46 or 0, 0, 0)
+	MainNoti.AutomaticSize = Enum.AutomaticSize.Y
+
+	local MainLayout = Instance.new("UIListLayout", MainNoti)
+	MainLayout.SortOrder = Enum.SortOrder.LayoutOrder
+	MainLayout.Padding = UDim.new(0, 2)
+
+	local TitleLabel = Instance.new("TextLabel", MainNoti)
+	TitleLabel.Name = "Title"
+	TitleLabel.LayoutOrder = 1
+	TitleLabel.BackgroundTransparency = 1
+	TitleLabel.TextSize = 14
+	TitleLabel.TextWrapped = true
+	TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
+	TitleLabel.TextColor3 = currentTheme.NotiTitle
+	TitleLabel.FontFace = Font.new("rbxassetid://12187365364", Enum.FontWeight.Bold, Enum.FontStyle.Normal)
+	TitleLabel.Text = title
+	TitleLabel.Size = UDim2.new(1, -20, 0, 0)
+	TitleLabel.AutomaticSize = Enum.AutomaticSize.Y
+
+	if sub and sub ~= "" then
+		local SubLabel = Instance.new("TextLabel", MainNoti)
+		SubLabel.Name = "Subtitle"
+		SubLabel.LayoutOrder = 2
+		SubLabel.BackgroundTransparency = 1
+		SubLabel.TextSize = 13
+		SubLabel.TextWrapped = true
+		SubLabel.TextXAlignment = Enum.TextXAlignment.Left
+		SubLabel.TextColor3 = currentTheme.NotiSubtitle
+		SubLabel.FontFace = Font.new("rbxassetid://12187365364", Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+		SubLabel.Text = sub
+		SubLabel.Size = UDim2.new(1, -20, 0, 0)
+		SubLabel.AutomaticSize = Enum.AutomaticSize.Y
+	end
+
+	local CloseBtn = Instance.new("ImageButton", NotiFrame)
+	CloseBtn.Name = "Close"
+	CloseBtn.BackgroundTransparency = 1
+	CloseBtn.AnchorPoint = Vector2.new(1, 0)
+	CloseBtn.Position = UDim2.new(1, 0, 0, 0)
+	CloseBtn.Size = UDim2.new(0, 18, 0, 18)
+
+	local CloseImg = Instance.new("ImageLabel", CloseBtn)
+	CloseImg.BackgroundTransparency = 1
+	CloseImg.AnchorPoint = Vector2.new(0.5, 0.5)
+	CloseImg.Position = UDim2.new(0.5, 0, 0.5, 0)
+	CloseImg.Size = UDim2.new(0, 12, 0, 12)
+	CloseImg.Image = "rbxassetid://11293981586"
+	CloseImg.ImageColor3 = currentTheme.NotiCloseIcon
+
+	CloseBtn.MouseButton1Click:Connect(function() NotiFrame:Destroy() end)
+	task.delay(duration, function()
+		if NotiFrame and NotiFrame.Parent then NotiFrame:Destroy() end
+	end)
+end
+
+return Library
