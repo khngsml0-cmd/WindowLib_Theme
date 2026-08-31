@@ -8,6 +8,7 @@ local TextService = game:GetService("TextService")
 
 local LocalPlayer = Players.LocalPlayer
 
+-- ĐƯỜNG DẪN GITHUB CỦA BẠN
 local GITHUB_RAW_BASE = "https://raw.githubusercontent.com/khngsml0-cmd/WindowLib_Theme/main/Themes/"
 
 local THEME_MAP = {
@@ -141,6 +142,7 @@ local Core = {
 	DragOutlineFrame = DragOutlineFrame,
 	CurrentZIndex = 10,
 	CurrentModuleType = "Modern",
+	CurrentSubTheme = "Dark",
 	ActiveWindows = {},
 	MruWindows = {},
 	MinimizedWindows = {},
@@ -283,7 +285,308 @@ end
 function Core.IsGlobalOutlineDrag() return isGlobalOutlineDrag end
 
 --------------------------------------------------------------------------------
--- 4. CONTEXT MENU SYSTEM GỐC
+-- 4. APP SWITCHER (CTRL + TAB) & DESKTOP TOGGLE (CTRL + D) GỐC
+--------------------------------------------------------------------------------
+local AppSwitcherGui = Instance.new("ScreenGui")
+AppSwitcherGui.Name = "SYSTEM_AppSwitcher"
+AppSwitcherGui.IgnoreGuiInset = true
+AppSwitcherGui.DisplayOrder = BASE_DISPLAY_ORDER + 999950
+AppSwitcherGui.ResetOnSpawn = false
+AppSwitcherGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+AppSwitcherGui.Parent = SystemGui
+
+local SwitcherContainerModern = Instance.new("Frame", AppSwitcherGui)
+SwitcherContainerModern.Name = "SwitcherContainerModern"
+SwitcherContainerModern.BorderSizePixel = 0
+SwitcherContainerModern.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+SwitcherContainerModern.BackgroundTransparency = 0.1
+SwitcherContainerModern.AnchorPoint = Vector2.new(0.5, 0.5)
+SwitcherContainerModern.Position = UDim2.new(0.5, 0, 0.5, 0)
+SwitcherContainerModern.AutomaticSize = Enum.AutomaticSize.XY
+SwitcherContainerModern.Visible = false
+Instance.new("UICorner", SwitcherContainerModern).CornerRadius = UDim.new(0, 10)
+
+local SwitcherStrokeModern = Instance.new("UIStroke", SwitcherContainerModern)
+SwitcherStrokeModern.Color = Color3.fromRGB(45, 45, 45)
+
+local SwitcherPaddingModern = Instance.new("UIPadding", SwitcherContainerModern)
+SwitcherPaddingModern.PaddingTop = UDim.new(0, 14); SwitcherPaddingModern.PaddingBottom = UDim.new(0, 14)
+SwitcherPaddingModern.PaddingLeft = UDim.new(0, 14); SwitcherPaddingModern.PaddingRight = UDim.new(0, 14)
+
+local SwitcherLayoutModern = Instance.new("UIListLayout", SwitcherContainerModern)
+SwitcherLayoutModern.FillDirection = Enum.FillDirection.Horizontal
+SwitcherLayoutModern.HorizontalAlignment = Enum.HorizontalAlignment.Center
+SwitcherLayoutModern.VerticalAlignment = Enum.VerticalAlignment.Center
+SwitcherLayoutModern.Padding = UDim.new(0, 10)
+
+local function applyClassic3DBorder(parentFrame)
+	local border = Instance.new("Frame", parentFrame)
+	border.Name = "Border"; border.Size = UDim2.new(1, 0, 1, 0); border.BackgroundTransparency = 1; border.BorderSizePixel = 0
+	local function addL(sz, ps, col)
+		local l = Instance.new("Frame", border)
+		l.BorderSizePixel = 0; l.Size = sz; l.Position = ps; l.BackgroundColor3 = col
+	end
+	addL(UDim2.new(1, 0, 0, 1), UDim2.new(0, 0, 1, -1), Color3.fromRGB(107, 107, 107))
+	addL(UDim2.new(0, 1, 1, 0), UDim2.new(1, -1, 0, 0), Color3.fromRGB(107, 107, 107))
+	addL(UDim2.new(1, -1, 0, 1), UDim2.new(0, 0, 0, 0), Color3.fromRGB(228, 228, 228))
+	addL(UDim2.new(0, 1, 1, -1), UDim2.new(0, 0, 0, 0), Color3.fromRGB(228, 228, 228))
+	return border
+end
+
+local SwitcherContainerClassic = Instance.new("Frame", AppSwitcherGui)
+SwitcherContainerClassic.Name = "SwitcherContainerClassic"
+SwitcherContainerClassic.BorderSizePixel = 0
+SwitcherContainerClassic.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+SwitcherContainerClassic.AnchorPoint = Vector2.new(0.5, 0.5)
+SwitcherContainerClassic.Position = UDim2.new(0.5, 0, 0.5, 0)
+SwitcherContainerClassic.Size = UDim2.new(0, 0, 0, 50)
+SwitcherContainerClassic.AutomaticSize = Enum.AutomaticSize.X
+SwitcherContainerClassic.Visible = false
+applyClassic3DBorder(SwitcherContainerClassic)
+
+local ClassicAppContainer = Instance.new("Frame", SwitcherContainerClassic)
+ClassicAppContainer.Name = "App"; ClassicAppContainer.BackgroundTransparency = 1
+ClassicAppContainer.Size = UDim2.new(1, -10, 1, -10); ClassicAppContainer.Position = UDim2.new(0.5, 0, 0.5, 0)
+ClassicAppContainer.AnchorPoint = Vector2.new(0.5, 0.5); ClassicAppContainer.AutomaticSize = Enum.AutomaticSize.X
+
+local ClassicAppLayout = Instance.new("UIListLayout", ClassicAppContainer)
+ClassicAppLayout.Padding = UDim.new(0, 10)
+ClassicAppLayout.FillDirection = Enum.FillDirection.Horizontal
+ClassicAppLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+ClassicAppLayout.VerticalAlignment = Enum.VerticalAlignment.Center
+
+local ClassicAppPadding = Instance.new("UIPadding", ClassicAppContainer)
+ClassicAppPadding.PaddingLeft = UDim.new(0, 8); ClassicAppPadding.PaddingRight = UDim.new(0, 8)
+
+local ClassicAppSelectTitle = Instance.new("TextLabel", SwitcherContainerClassic)
+ClassicAppSelectTitle.Name = "AppSelect"; ClassicAppSelectTitle.BackgroundTransparency = 1
+ClassicAppSelectTitle.AnchorPoint = Vector2.new(0.5, 0); ClassicAppSelectTitle.Position = UDim2.new(0.5, 0, 1, 10)
+ClassicAppSelectTitle.Size = UDim2.new(1, 40, 0, 20); ClassicAppSelectTitle.Font = Enum.Font.SourceSans
+ClassicAppSelectTitle.TextSize = 20; ClassicAppSelectTitle.TextColor3 = Color3.fromRGB(255, 255, 255); ClassicAppSelectTitle.Text = ""
+
+local ClassicAppSelectShadow = Instance.new("TextLabel", ClassicAppSelectTitle)
+ClassicAppSelectShadow.Name = "Shadow"; ClassicAppSelectShadow.BackgroundTransparency = 1
+ClassicAppSelectShadow.Position = UDim2.new(0, 1, 0, 1); ClassicAppSelectShadow.Size = UDim2.new(1, 0, 1, 0)
+ClassicAppSelectShadow.Font = Enum.Font.SourceSans; ClassicAppSelectShadow.TextSize = 20
+ClassicAppSelectShadow.TextColor3 = Color3.fromRGB(0, 0, 0); ClassicAppSelectShadow.ZIndex = 0; ClassicAppSelectShadow.Text = ""
+
+local isSwitcherOpen = false
+local switcherCurrentIdx = 1
+local switcherCardElements = {}
+local desktopMinimizedStack = {}
+local isDesktopMinimizedState = false
+
+local function renderSwitcherCards()
+	for _, card in ipairs(switcherCardElements) do card:Destroy() end
+	switcherCardElements = {}
+
+	local isClassic = (Core.CurrentModuleType == "Classic")
+	local currentPal = (Core.ActiveThemeModule and Core.ActiveThemeModule.Palettes[Core.CurrentSubTheme]) or {
+		SwitcherBackground = Color3.fromRGB(25, 25, 25),
+		SwitcherCardBg = Color3.fromRGB(35, 35, 35),
+		SwitcherCardSelected = Color3.fromRGB(50, 50, 50),
+		MainStroke = Color3.fromRGB(45, 45, 45),
+		TitleTextColor = Color3.fromRGB(240, 240, 240)
+	}
+
+	if isClassic then
+		SwitcherContainerModern.Visible = false
+		SwitcherContainerClassic.Visible = true
+
+		for idx, winData in ipairs(Core.MruWindows) do
+			local isSelected = (idx == switcherCurrentIdx)
+			local itemFrame = Instance.new("Frame", ClassicAppContainer)
+			itemFrame.Name = isSelected and "Template_Select" or "Template_Unselect"
+			itemFrame.Size = UDim2.new(0, 35, 0, 35); itemFrame.BorderSizePixel = 0
+			itemFrame.BackgroundColor3 = isSelected and Color3.fromRGB(0, 171, 255) or Color3.fromRGB(255, 255, 255)
+
+			local stroke = Instance.new("UIStroke", itemFrame)
+			stroke.Thickness = 2; stroke.Color = Color3.fromRGB(52, 103, 154)
+			stroke.LineJoinMode = Enum.LineJoinMode.Miter; stroke.Enabled = isSelected
+
+			local icon = Instance.new("ImageLabel", itemFrame)
+			icon.Name = "Iconapp"; icon.BackgroundTransparency = 1
+			icon.AnchorPoint = Vector2.new(0.5, 0.5); icon.Position = UDim2.new(0.5, 0, 0.5, 0)
+			icon.Size = UDim2.new(0, 20, 0, 20)
+			icon.Image = winData.GetIcon and winData.GetIcon() or "rbxasset://textures/ui/GuiImagePlaceholder.png"
+
+			table.insert(switcherCardElements, itemFrame)
+		end
+
+		local activeWin = Core.MruWindows[switcherCurrentIdx]
+		local titleText = activeWin and (activeWin.GetTitle and activeWin.GetTitle() or "Window") or ""
+		ClassicAppSelectTitle.Text = titleText
+		ClassicAppSelectShadow.Text = titleText
+	else
+		SwitcherContainerClassic.Visible = false
+		SwitcherContainerModern.Visible = true
+		SwitcherContainerModern.BackgroundColor3 = currentPal.SwitcherBackground
+		SwitcherStrokeModern.Color = currentPal.MainStroke
+
+		for idx, winData in ipairs(Core.MruWindows) do
+			local isSelected = (idx == switcherCurrentIdx)
+			local card = Instance.new("Frame", SwitcherContainerModern)
+			card.Name = "Card_" .. idx
+			card.Size = UDim2.new(0, 95, 0, 85); card.BorderSizePixel = 0
+			card.BackgroundColor3 = isSelected and currentPal.SwitcherCardSelected or currentPal.SwitcherCardBg
+			Instance.new("UICorner", card).CornerRadius = UDim.new(0, 6)
+
+			local cardStroke = Instance.new("UIStroke", card)
+			cardStroke.Color = isSelected and Color3.fromRGB(0, 140, 255) or currentPal.MainStroke
+			cardStroke.Thickness = isSelected and 2 or 1
+
+			local cardPadding = Instance.new("UIPadding", card)
+			cardPadding.PaddingTop = UDim.new(0, 8); cardPadding.PaddingBottom = UDim.new(0, 6)
+			cardPadding.PaddingLeft = UDim.new(0, 6); cardPadding.PaddingRight = UDim.new(0, 6)
+
+			local cardLayout = Instance.new("UIListLayout", card)
+			cardLayout.FillDirection = Enum.FillDirection.Vertical
+			cardLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+			cardLayout.VerticalAlignment = Enum.VerticalAlignment.Center
+			cardLayout.Padding = UDim.new(0, 6)
+
+			local icon = Instance.new("ImageLabel", card)
+			icon.BackgroundTransparency = 1; icon.Size = UDim2.new(0, 36, 0, 36)
+			icon.Image = winData.GetIcon and winData.GetIcon() or "rbxasset://textures/ui/GuiImagePlaceholder.png"
+
+			local title = Instance.new("TextLabel", card)
+			title.BackgroundTransparency = 1; title.Size = UDim2.new(1, -12, 0, 16); title.TextSize = 11
+			title.TextColor3 = currentPal.TitleTextColor
+			title.FontFace = Font.new("rbxassetid://12187365364", Enum.FontWeight.Medium, Enum.FontStyle.Normal)
+			title.Text = winData.GetTitle and winData.GetTitle() or "Window"
+			title.TextTruncate = Enum.TextTruncate.AtEnd
+
+			table.insert(switcherCardElements, card)
+		end
+	end
+end
+
+local function updateSwitcherSelection()
+	local isClassic = (Core.CurrentModuleType == "Classic")
+	local currentPal = (Core.ActiveThemeModule and Core.ActiveThemeModule.Palettes[Core.CurrentSubTheme]) or {
+		SwitcherCardBg = Color3.fromRGB(35, 35, 35),
+		SwitcherCardSelected = Color3.fromRGB(50, 50, 50),
+		MainStroke = Color3.fromRGB(45, 45, 45),
+	}
+
+	if isClassic then
+		for idx, card in ipairs(switcherCardElements) do
+			local isSelected = (idx == switcherCurrentIdx)
+			card.BackgroundColor3 = isSelected and Color3.fromRGB(0, 171, 255) or Color3.fromRGB(255, 255, 255)
+			local stroke = card:FindFirstChildOfClass("UIStroke")
+			if stroke then stroke.Enabled = isSelected end
+		end
+		local activeWin = Core.MruWindows[switcherCurrentIdx]
+		local titleText = activeWin and (activeWin.GetTitle and activeWin.GetTitle() or "Window") or ""
+		ClassicAppSelectTitle.Text = titleText
+		ClassicAppSelectShadow.Text = titleText
+	else
+		for idx, card in ipairs(switcherCardElements) do
+			local isSelected = (idx == switcherCurrentIdx)
+			card.BackgroundColor3 = isSelected and currentPal.SwitcherCardSelected or currentPal.SwitcherCardBg
+			local stroke = card:FindFirstChildOfClass("UIStroke")
+			if stroke then
+				stroke.Color = isSelected and Color3.fromRGB(0, 140, 255) or currentPal.MainStroke
+				stroke.Thickness = isSelected and 2 or 1
+			end
+		end
+	end
+end
+
+local function openSwitcher()
+	if #Core.MruWindows == 0 then return end
+	isSwitcherOpen = true
+	switcherCurrentIdx = (#Core.MruWindows >= 2) and 2 or 1
+	renderSwitcherCards()
+	updateSwitcherSelection()
+end
+
+local function cycleSwitcher()
+	if not isSwitcherOpen or #Core.MruWindows == 0 then return end
+	switcherCurrentIdx = (switcherCurrentIdx % #Core.MruWindows) + 1
+	updateSwitcherSelection()
+end
+
+local function closeSwitcherAndSelect()
+	if not isSwitcherOpen then return end
+	isSwitcherOpen = false
+	SwitcherContainerModern.Visible = false
+	SwitcherContainerClassic.Visible = false
+
+	local targetWin = Core.MruWindows[switcherCurrentIdx]
+	if targetWin then
+		if targetWin.IsMinimized and targetWin.IsMinimized() then targetWin.Restore() end
+		if targetWin.Focus then targetWin.Focus() end
+	end
+end
+
+local ctrlPressed = false
+UserInputService.InputBegan:Connect(function(input)
+	if input.KeyCode == Enum.KeyCode.LeftControl or input.KeyCode == Enum.KeyCode.RightControl then ctrlPressed = true end
+	
+	-- Phím tắt chuyển Tab (Ctrl + Tab)
+	if input.KeyCode == Enum.KeyCode.Tab and ctrlPressed then
+		if not isSwitcherOpen then openSwitcher() else cycleSwitcher() end
+	end
+
+	-- Phím tắt Ẩn/Hiện Desktop (Ctrl + D)
+	if input.KeyCode == Enum.KeyCode.D and ctrlPressed then
+		if not isDesktopMinimizedState then
+			desktopMinimizedStack = {}
+			local anyMinimized = false
+			for _, win in ipairs(Core.ActiveWindows) do
+				if win.IsMinimized and not win.IsMinimized() then
+					table.insert(desktopMinimizedStack, win)
+					win.Minimize()
+					anyMinimized = true
+				end
+			end
+			if anyMinimized then isDesktopMinimizedState = true end
+		else
+			for _, win in ipairs(desktopMinimizedStack) do
+				if win and win.Restore then win.Restore() end
+			end
+			desktopMinimizedStack = {}
+			isDesktopMinimizedState = false
+		end
+	end
+end)
+
+UserInputService.InputEnded:Connect(function(input)
+	if input.KeyCode == Enum.KeyCode.LeftControl or input.KeyCode == Enum.KeyCode.RightControl then
+		ctrlPressed = false
+		if isSwitcherOpen then closeSwitcherAndSelect() end
+	end
+end)
+
+-- Click ra ngoài cửa sổ tự động mất Focus
+UserInputService.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+		if Core.FocusedWindow == nil then return end
+
+		local rawMousePos = UserInputService:GetMouseLocation()
+		local mousePos = Vector2.new(rawMousePos.X, rawMousePos.Y - GuiService:GetGuiInset().Y)
+
+		local clickedInsideAny = false
+		for _, win in ipairs(Core.ActiveWindows) do
+			if win.Frame and win.Frame.Parent and win.Frame.Visible then
+				local pos = win.Frame.AbsolutePosition
+				local size = win.Frame.AbsoluteSize
+				if mousePos.X >= pos.X and mousePos.X <= pos.X + size.X and mousePos.Y >= pos.Y and mousePos.Y <= pos.Y + size.Y then
+					clickedInsideAny = true
+					break
+				end
+			end
+		end
+
+		if not clickedInsideAny then
+			Core.SetFocus(nil)
+		end
+	end
+end)
+
+--------------------------------------------------------------------------------
+-- 5. CONTEXT MENU SYSTEM GỐC
 --------------------------------------------------------------------------------
 local activeSubmenuFrames = {}
 
@@ -301,14 +604,24 @@ local function renderContextMenuFrame(pos, items, level, parentBtnWidth)
 	clearSubmenusFromLevel(level)
 
 	local isClassic = (Core.CurrentModuleType == "Classic")
+	local currentPal = (Core.ActiveThemeModule and Core.ActiveThemeModule.Palettes[Core.CurrentSubTheme]) or {
+		ContextMenuBackground = Color3.fromRGB(35, 35, 35),
+		ContextMenuStroke = Color3.fromRGB(60, 60, 60),
+		ContextItemDefault = Color3.fromRGB(35, 35, 35),
+		ContextItemHover = Color3.fromRGB(40, 90, 150),
+		ContextItemText = Color3.fromRGB(240, 240, 240),
+		ContextItemTextDisabled = Color3.fromRGB(140, 140, 140),
+		ContextItemSeparator = Color3.fromRGB(70, 70, 70),
+		ContextCheckBoxBg = Color3.fromRGB(25, 25, 25),
+		ContextCheckMark = Color3.fromRGB(45, 120, 200),
+		ContextArrow = Color3.fromRGB(180, 180, 180)
+	}
+
 	local font = isClassic and Enum.Font.SourceSans or Enum.Font.Gotham
 	local itemHeight = isClassic and 25 or 24
-	local sepHeight = 10
-	local itemSpacing = isClassic and 0 or 2
-	local padTop = isClassic and 3 or 4
-	local padBottom = isClassic and 3 or 4
-	local padLeft = isClassic and 3 or 4
-	local padRight = isClassic and 3 or 4
+	local sepHeight = 10; local itemSpacing = isClassic and 0 or 2
+	local padTop = isClassic and 3 or 4; local padBottom = isClassic and 3 or 4
+	local padLeft = isClassic and 3 or 4; local padRight = isClassic and 3 or 4
 
 	local minMenuWidth = 180
 	local maxItemWidth = minMenuWidth
@@ -341,18 +654,16 @@ local function renderContextMenuFrame(pos, items, level, parentBtnWidth)
 	menuFrame.Name = "ContextMenuLevel_" .. level
 	menuFrame.BorderSizePixel = 0
 	menuFrame.AutoButtonColor = false
-	menuFrame.BackgroundColor3 = isClassic and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(35, 35, 35)
+	menuFrame.BackgroundColor3 = isClassic and Color3.fromRGB(255, 255, 255) or currentPal.ContextMenuBackground
 	menuFrame.Size = UDim2.new(0, menuWidth, 0, totalMenuHeight)
 	menuFrame.ZIndex = 999900 + level
 
 	if isClassic then
-		local border = Instance.new("Frame", menuFrame)
-		border.Name = "Border"; border.BorderSizePixel = 0; border.BackgroundTransparency = 1
-		border.AnchorPoint = Vector2.new(0.5, 0.5); border.Size = UDim2.new(1, 5, 1, 5); border.Position = UDim2.new(0.5, 0, 0.5, 0)
+		applyClassic3DBorder(menuFrame)
 	else
 		Instance.new("UICorner", menuFrame).CornerRadius = UDim.new(0, 6)
 		local stroke = Instance.new("UIStroke", menuFrame)
-		stroke.Color = Color3.fromRGB(60, 60, 60)
+		stroke.Color = currentPal.ContextMenuStroke
 	end
 
 	local padding = Instance.new("UIPadding", menuFrame)
@@ -381,8 +692,8 @@ local function renderContextMenuFrame(pos, items, level, parentBtnWidth)
 	menuFrame.Position = UDim2.new(0, finalX, 0, finalY)
 	table.insert(activeSubmenuFrames, menuFrame)
 
-	local itemDefaultBg = isClassic and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(35, 35, 35)
-	local itemHoverBg = isClassic and Color3.fromRGB(225, 225, 225) or Color3.fromRGB(40, 90, 150)
+	local itemDefaultBg = isClassic and Color3.fromRGB(255, 255, 255) or currentPal.ContextItemDefault
+	local itemHoverBg = isClassic and Color3.fromRGB(225, 225, 225) or currentPal.ContextItemHover
 	local currentYOffset = finalY + padTop
 
 	for itemIndex, item in ipairs(items or {}) do
@@ -394,7 +705,7 @@ local function renderContextMenuFrame(pos, items, level, parentBtnWidth)
 			Sep.BackgroundTransparency = 1; Sep.Size = UDim2.new(1, 0, 0, sepHeight)
 			local LineFrame = Instance.new("Frame", Sep)
 			LineFrame.BorderSizePixel = 0
-			LineFrame.BackgroundColor3 = isClassic and Color3.fromRGB(171, 171, 171) or Color3.fromRGB(70, 70, 70)
+			LineFrame.BackgroundColor3 = isClassic and Color3.fromRGB(171, 171, 171) or currentPal.ContextItemSeparator
 			LineFrame.AnchorPoint = Vector2.new(0.5, 0.5); LineFrame.Position = UDim2.new(0.5, 0, 0.5, 0); LineFrame.Size = UDim2.new(1, -6, 0, 1)
 		elseif item.Type == "Button" then
 			local Btn = Instance.new("TextButton", listContainer)
@@ -404,13 +715,13 @@ local function renderContextMenuFrame(pos, items, level, parentBtnWidth)
 
 			local Text = Instance.new("TextLabel", Btn)
 			Text.BackgroundTransparency = 1; Text.TextSize = 13; Text.TextXAlignment = Enum.TextXAlignment.Left
-			Text.TextColor3 = item.Disabled and (isClassic and Color3.fromRGB(101, 101, 101) or Color3.fromRGB(140, 140, 140)) or (isClassic and Color3.fromRGB(0, 0, 0) or Color3.fromRGB(240, 240, 240))
+			Text.TextColor3 = item.Disabled and (isClassic and Color3.fromRGB(101, 101, 101) or currentPal.ContextItemTextDisabled) or (isClassic and Color3.fromRGB(0, 0, 0) or currentPal.ContextItemText)
 			Text.Font = font; Text.Size = UDim2.new(1, 0, 1, 0); Text.Text = item.Text or ""
 			local Pad = Instance.new("UIPadding", Text); Pad.PaddingLeft = UDim.new(0, 8); Pad.PaddingRight = UDim.new(0, 8)
 
 			if not item.Disabled then
 				Btn.MouseEnter:Connect(function() Btn.BackgroundColor3 = itemHoverBg; if not isClassic then Text.TextColor3 = Color3.fromRGB(255, 255, 255) end end)
-				Btn.MouseLeave:Connect(function() Btn.BackgroundColor3 = itemDefaultBg; if not isClassic then Text.TextColor3 = Color3.fromRGB(240, 240, 240) end end)
+				Btn.MouseLeave:Connect(function() Btn.BackgroundColor3 = itemDefaultBg; if not isClassic then Text.TextColor3 = currentPal.ContextItemText end end)
 				Btn.MouseButton1Click:Connect(function() clearSubmenusFromLevel(1); if item.Callback then item.Callback() end end)
 			end
 		end
@@ -442,7 +753,7 @@ UserInputService.InputBegan:Connect(function(input)
 end)
 
 --------------------------------------------------------------------------------
--- 5. MAIN LIBRARY & GITHUB THEME ENGINE (AUTO LOAD MODERN)
+-- 6. MAIN LIBRARY ENGINE
 --------------------------------------------------------------------------------
 local Library = {
 	CurrentThemeName = "Dark",
@@ -474,7 +785,7 @@ function Library:FetchModule(moduleName)
 		self.LoadedModules[moduleName] = moduleTable
 		return moduleTable
 	else
-		warn("[UI Core] File " .. moduleName .. " không trả về bảng hợp lệ!")
+		warn("[UI Core] File " .. moduleName .. " không hợp lệ!")
 		return nil
 	end
 end
@@ -486,6 +797,7 @@ function Library:EnsureDefaultThemeLoaded()
 	if moduleObj then
 		self.ActiveThemeModule = moduleObj
 		Core.CurrentModuleType = moduleObj.Type
+		Core.CurrentSubTheme = targetInfo.SubTheme
 		Core.ActiveThemeModule = moduleObj
 		if moduleObj.Init then moduleObj.Init(Core) end
 	end
@@ -509,6 +821,7 @@ function Library:SetTheme(targetThemeName)
 	self.CurrentThemeName = targetThemeName
 	self.ActiveThemeModule = moduleObj
 	Core.CurrentModuleType = moduleObj.Type
+	Core.CurrentSubTheme = subTheme
 	Core.ActiveThemeModule = moduleObj
 
 	if moduleObj.Init and not isSameArchetype then
