@@ -198,9 +198,6 @@ local function createSunkenButton(parent, size, pos, name, arrowRotation)
 	return btn
 end
 
---------------------------------------------------------------------------------
--- TASKBAR & CURSOR STATE
---------------------------------------------------------------------------------
 local ClassicTaskbar, UnHideTaskbar, TaskbarAppHolder, TaskbarMain, ControlApp, TaskbarMainLayout
 local CursorGui, CursorImg
 local isTaskbarVisible = false
@@ -380,7 +377,6 @@ function ClassicModule.UpdateTaskbar(Core)
 end
 
 function ClassicModule.Init(Core)
-	-- Tạo Fake Cursor
 	if not CursorGui then
 		CursorGui = Instance.new("ScreenGui")
 		CursorGui.Name = "FakeCursorGui"
@@ -403,7 +399,7 @@ function ClassicModule.Init(Core)
 		end)
 
 		RunService.RenderStepped:Connect(function()
-			if Core.CurrentModuleType == "Classic" then
+			if Core.CurrentTheme == "Classic" then
 				local activeImage = lockedIcon or hoverIcon or (isHoveringWindow and ICON_NORMAL or nil)
 				if activeImage then
 					UserInputService.MouseIconEnabled = false
@@ -425,7 +421,6 @@ function ClassicModule.Init(Core)
 		end)
 	end
 
-	-- Tạo Taskbar
 	if not ClassicTaskbar then
 		ClassicTaskbar = Instance.new("ImageButton", Core.NonUserGui)
 		ClassicTaskbar.Name = "Taskbar"
@@ -574,7 +569,6 @@ function ClassicModule.CreateWindow(Core, config)
 
 	applyWindow3DBorder(FloatingWindow)
 
-	-- TitleBar
 	local TitleBar = Instance.new("Frame", FloatingWindow)
 	TitleBar.Name = "TitleBar"
 	TitleBar.Size = UDim2.new(1, -8, 0, 17)
@@ -620,7 +614,7 @@ function ClassicModule.CreateWindow(Core, config)
 	local Container = Instance.new("TextButton", FloatingWindow)
 	Container.Name = "Container"
 	Container.Position = UDim2.new(0, 4, 0, 22)
-	Container.Size = UDim2.new(0, math.max(0, FloatingWindow.AbsoluteSize.X - 8), 0, math.max(0, FloatingWindow.AbsoluteSize.Y - 26))
+	Container.Size = UDim2.new(1, -8, 1, -26)
 	Container.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 	Container.BackgroundTransparency = 0
 	Container.BorderSizePixel = 0
@@ -677,6 +671,7 @@ function ClassicModule.CreateWindow(Core, config)
 
 	local function bringToFront()
 		Core.BringToFront(FloatingWindow, windowRecord)
+		ClassicModule.UpdateTaskbar(Core)
 	end
 
 	local function setFocusVisual(isFocused)
@@ -687,6 +682,7 @@ function ClassicModule.CreateWindow(Core, config)
 			TitleBar.BackgroundColor3 = Color3.fromRGB(129, 129, 129)
 			TitleText.TextColor3 = Color3.fromRGB(196, 196, 196)
 		end
+		ClassicModule.UpdateTaskbar(Core)
 	end
 
 	local function setClassicMinimize(minimize)
@@ -928,6 +924,7 @@ function ClassicModule.CreateWindow(Core, config)
 	end
 
 	windowRecord.API = WindowAPI
+	ClassicModule.UpdateTaskbar(Core)
 	return windowRecord
 end
 
